@@ -57,6 +57,7 @@ from transformers.models.mixtral.configuration_mixtral import MixtralConfig
 
 from ..rocm_kernels.fused_moe import fused_moe
 from ..rocm_kernels import paged_attn
+from ..rocm_kernels.paged_attn import PagedAttention
 import rocmKernels as ops
 
 if is_flash_attn_2_available():
@@ -740,6 +741,9 @@ class MixtralSdpaAttention(MixtralAttention):
     `MixtralAttention` as the weights of the module stays untouched. The only changes are on the forward pass to adapt to
     SDPA API.
     """
+    def __init__(self, config: MixtralConfig, layer_idx: Optional[int] = None):
+        super().__init__(config, layer_idx)
+        self.cache_inited = False
 
     # Adapted from MixtralAttention.forward
     def forward(
@@ -791,35 +795,10 @@ class MixtralSdpaAttention(MixtralAttention):
 
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
 
-        # if past_key_value is not None:
-        #     cache_kwargs = {"sin": sin, "cos": cos}  # Specific to RoPE models
-        #     key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx, cache_kwargs)
-
-        # past_key_value: [max_batch_size, kv_head_num, max_seq_len, head_dim]
-        if is_context:
-            slot_id = valid_slot_ids[0]
-            q_len = all_q_len[0]
-            past_key_value[self.layer_idx][0][slot_id:slot_id+1, :, :q_len, :] = key_states
-            past_key_value[self.layer_idx][1][slot_id:slot_id+1, :, :q_len, :] = value_states
-        else:
-            batch_size, _, q_len, _ = key_states.shape
-            max_qkv_len = q_len + max(all_kv_len)
-            for i, slot_id in enumerate(valid_slot_ids):
-                q_len = all_q_len[i]
-                kv_len = all_kv_len[i]
-                past_key_value[self.layer_idx][0][slot_id:slot_id+1, :, kv_len:kv_len+q_len, :] = key_states[i, :, :, :]
-                past_key_value[self.layer_idx][1][slot_id:slot_id+1, :, kv_len:kv_len+q_len, :] = value_states[i, :, :, :]
-
-            cur_k_cache = past_key_value[self.layer_idx][0][:, :, :max_qkv_len, :]
-            cur_v_cache = past_key_value[self.layer_idx][1][:, :, :max_qkv_len, :]
-            select_slots = torch.tensor(valid_slot_ids, device=key_states.device)
-            key_states = torch.index_select(cur_k_cache, 0, select_slots)
-            value_states = torch.index_select(cur_v_cache, 0, select_slots)
-
         if is_context:
             key_states = repeat_kv(key_states, self.num_key_value_groups)
             value_states = repeat_kv(value_states, self.num_key_value_groups)
-
+        
         # if attention_mask is not None:
         #     if attention_mask.size() != (bsz, 1, q_len, kv_seq_len):
         #         raise ValueError(
@@ -834,6 +813,7 @@ class MixtralSdpaAttention(MixtralAttention):
             query_states = query_states.contiguous()
             key_states = key_states.contiguous()
             value_states = value_states.contiguous()
+
         if is_context:
             attn_output = torch.nn.functional.scaled_dot_product_attention(
                 query_states,
@@ -842,50 +822,57 @@ class MixtralSdpaAttention(MixtralAttention):
                 attn_mask=~attention_mask,
                 dropout_p=self.attention_dropout if self.training else 0.0,
             )
-        else:
-            query_states = query_states.view(bsz *q_len, self.num_heads, self.head_dim)
-            attn_output = torch.empty_like(query_states)
-
-            #### hack here because kv cache has not been ported
-            #### just give a random data as cache
-            #### todo felix: port kv cache and replace these
-            seq_lens = torch.tensor(all_q_len + all_q_len, dtype=torch.int, device=query_states.device)
-            block_size = 32
-            max_num_blocks = 8192
-            max_num_blocks_per_seq = (max_kv_len + block_size - 1) //block_size
-            block_tables_lst: List[List[int]] = []
-            block_start = 0
-            for _ in range(bsz):
+        # todo: move tables out of layer, only one per model
+        block_size = 32
+        max_num_blocks = 16384
+        max_num_blocks_per_seq = (max_kv_len + block_size - 1) //block_size
+        if not self.cache_inited:
+            self.block_tables_lst: List[List[int]] = []
+            for batch_idx in range(bsz):
+                block_start = max_num_blocks_per_seq * batch_idx
                 block_table = [i + block_start for i in range(max_num_blocks_per_seq)]
-                block_tables_lst.append(block_table)
-                block_start += max_num_blocks_per_seq
-            block_tables = torch.tensor(block_tables_lst, dtype=torch.int,
+                self.block_tables_lst.append(block_table)
+            self.block_tables = torch.tensor(self.block_tables_lst, dtype=torch.int,
                             device = query_states.device)
             x = 16 // torch.tensor([], dtype=query_states.dtype).element_size()
             key_cache_shape = (max_num_blocks, self.num_key_value_heads, self.head_dim // x, block_size, x)
-            key_cache = torch.zeros(size=key_cache_shape,
+            self.key_cache = torch.zeros(size=key_cache_shape,
                                     dtype=query_states.dtype,
                                     device=query_states.device)
-                                    
+
             value_cache_shape = (max_num_blocks, self.num_key_value_heads, self.head_dim, block_size)
-            value_cache = torch.zeros(size=value_cache_shape,
+            self.value_cache = torch.zeros(size=value_cache_shape,
                                     dtype=query_states.dtype,
                                     device=query_states.device)
-            paged_attn.paged_attention_v1(
-                attn_output,
+            self.cache_inited = True
+        slot_offset = torch.arange(0, bsz * max_num_blocks_per_seq, 
+                                   max_num_blocks_per_seq, 
+                                   device = position_ids.device).unsqueeze(1)
+        slot_mapping = position_ids + slot_offset
+        PagedAttention.write_to_paged_cache(key_states, 
+                                            value_states, 
+                                            self.key_cache,
+                                            self.value_cache,
+                                            slot_mapping,
+                                            "auto", 1.0, 1.0)
+        if not is_context:
+            query_states = query_states.view(-1, self.num_heads, self.head_dim)
+            key_states = key_states.view(-1, self.num_key_value_heads, self.head_dim)
+            value_states = value_states.view(-1, self.num_key_value_heads, self.head_dim)
+            seq_lens = torch.tensor(all_q_len + all_kv_len, dtype=torch.int, device=query_states.device)
+            attn_output = PagedAttention.forward_decode(
                 query_states,
-                key_cache,
-                value_cache,
+                self.key_cache,
+                self.value_cache,
+                self.block_tables,
+                seq_lens,
+                int(max_kv_len),
+                "auto",
                 self.num_key_value_heads,
                 1.0,
-                block_tables,
-                seq_lens,
-                int(block_size),
-                int(max_kv_len),
                 None,
-                "auto",
                 1.0,
-                1.0
+                1.0,
             )
         attn_output = attn_output.transpose(1, 2).contiguous()
         attn_output = attn_output.view(bsz, q_len, self.num_heads * self.head_dim)
