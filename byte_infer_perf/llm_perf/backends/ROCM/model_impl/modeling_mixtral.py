@@ -56,6 +56,7 @@ from transformers.utils.import_utils import is_torch_fx_available
 from transformers.models.mixtral.configuration_mixtral import MixtralConfig
 
 from ..rocm_kernels.fused_moe import fused_moe
+from ..rocm_kernels import paged_attn
 import rocmKernels as ops
 
 if is_flash_attn_2_available():
@@ -815,9 +816,9 @@ class MixtralSdpaAttention(MixtralAttention):
             key_states = torch.index_select(cur_k_cache, 0, select_slots)
             value_states = torch.index_select(cur_v_cache, 0, select_slots)
 
-
-        key_states = repeat_kv(key_states, self.num_key_value_groups)
-        value_states = repeat_kv(value_states, self.num_key_value_groups)
+        if is_context:
+            key_states = repeat_kv(key_states, self.num_key_value_groups)
+            value_states = repeat_kv(value_states, self.num_key_value_groups)
 
         # if attention_mask is not None:
         #     if attention_mask.size() != (bsz, 1, q_len, kv_seq_len):
@@ -833,25 +834,60 @@ class MixtralSdpaAttention(MixtralAttention):
             query_states = query_states.contiguous()
             key_states = key_states.contiguous()
             value_states = value_states.contiguous()
+        is_fake_cache = os.environ["USE_FAKE_CACHE"]
+        if is_context and is_fake_cache:
+            attn_output = torch.nn.functional.scaled_dot_product_attention(
+                query_states,
+                key_states,
+                value_states,
+                attn_mask=~attention_mask,
+                dropout_p=self.attention_dropout if self.training else 0.0,
+            )
+        else:
+            query_states = query_states.view(bsz *q_len, self.num_heads, self.head_dim)
+            attn_output = torch.empty_like(query_states)
 
-        # attn_output = torch.nn.functional.scaled_dot_product_attention(
-        #     query_states,
-        #     key_states,
-        #     value_states,
-        #     attn_mask=attention_mask,
-        #     dropout_p=self.attention_dropout if self.training else 0.0,
-        #     # The q_len > 1 is necessary to match with AttentionMaskConverter.to_causal_4d that does not create a causal mask in case q_len == 1.
-        #     is_causal=self.is_causal and attention_mask is None and q_len > 1,
-        # )
-
-        attn_output = torch.nn.functional.scaled_dot_product_attention(
-            query_states,
-            key_states,
-            value_states,
-            attn_mask=~attention_mask,
-            dropout_p=self.attention_dropout if self.training else 0.0,
-        )
-
+            #### hack here because kv cache has not been ported
+            #### just give a random data as cache
+            #### todo felix: port kv cache and replace these
+            seq_lens = torch.tensor(all_q_len + all_q_len, dtype=torch.int, device=query_states.device)
+            block_size = 32
+            max_num_blocks = 8192
+            max_num_blocks_per_seq = (max_kv_len + block_size - 1) //block_size
+            block_tables_lst: List[List[int]] = []
+            block_start = 0
+            for _ in range(bsz):
+                block_table = [i + block_start for i in range(max_num_blocks_per_seq)]
+                block_tables_lst.append(block_table)
+                block_start += max_num_blocks_per_seq
+            block_tables = torch.tensor(block_tables_lst, dtype=torch.int,
+                            device = query_states.device)
+            x = 16 // torch.tensor([], dtype=query_states.dtype).element_size()
+            key_cache_shape = (max_num_blocks, self.num_key_value_heads, self.head_dim // x, block_size, x)
+            key_cache = torch.zeros(size=key_cache_shape,
+                                    dtype=query_states.dtype,
+                                    device=query_states.device)
+                                    
+            value_cache_shape = (max_num_blocks, self.num_key_value_heads, self.head_dim, block_size)
+            value_cache = torch.zeros(size=value_cache_shape,
+                                    dtype=query_states.dtype,
+                                    device=query_states.device)
+            paged_attn.paged_attention_v1(
+                attn_output,
+                query_states,
+                key_cache,
+                value_cache,
+                self.num_key_value_heads,
+                1.0,
+                block_tables,
+                seq_lens,
+                int(block_size),
+                int(max_kv_len),
+                None,
+                "auto",
+                1.0,
+                1.0
+            )
         attn_output = attn_output.transpose(1, 2).contiguous()
         attn_output = attn_output.view(bsz, q_len, self.num_heads * self.head_dim)
 

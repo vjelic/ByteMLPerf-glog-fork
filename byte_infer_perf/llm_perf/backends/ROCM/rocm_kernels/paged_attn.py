@@ -1,6 +1,6 @@
 from typing import List, Optional, Tuple, Union
 import torch
-import rocmKernels as pa
+import rocmKernels as ops
 
 # page attention ops
 def paged_attention_v1(
@@ -24,7 +24,7 @@ def paged_attention_v1(
     blocksparse_block_size: int = 64,
     blocksparse_head_sliding_step: int = 0,
 ) -> None:
-    pa.paged_attention_v1(
+    ops.paged_attention_v1(
         out, query, key_cache, value_cache, num_kv_heads, scale, block_tables,
         seq_lens, block_size, max_seq_len, alibi_slopes, kv_cache_dtype,
         k_scale, v_scale, tp_rank, blocksparse_local_blocks,
@@ -56,7 +56,7 @@ def paged_attention_v2(
     blocksparse_block_size: int = 64,
     blocksparse_head_sliding_step: int = 0,
 ) -> None:
-    pa.paged_attention_v2(
+    ops.paged_attention_v2(
         out, exp_sum, max_logits, tmp_out, query, key_cache, value_cache,
         num_kv_heads, scale, block_tables, seq_lens, block_size, max_seq_len,
         alibi_slopes, kv_cache_dtype, k_scale, v_scale, tp_rank,
@@ -83,18 +83,8 @@ def paged_attention_rocm(
     k_scale: float,
     v_scale: float,
 ) -> None:
-    pa.paged_attention_rocm(out, exp_sum, max_logits, tmp_out, query,
+    ops.paged_attention_rocm(out, exp_sum, max_logits, tmp_out, query,
         key_cache, value_cache, num_kv_heads,
         scale, block_tables, seq_lens,
         block_size, max_seq_len, alibi_slopes,
         kv_cache_dtype, k_scale, v_scale)
-    
-    
-def _use_rocm_custom_paged_attention(qtype: torch.dtype, head_size: int,
-                                     block_size: int, gqa_ratio: int,
-                                     max_seq_len: int) -> bool:
-    # rocm custom page attention not support on navi (gfx1*)
-    return ((qtype == torch.half or qtype == torch.bfloat16)
-            and (head_size == 64 or head_size == 128)
-            and (block_size == 16 or block_size == 32)
-            and (gqa_ratio >= 1 and gqa_ratio <= 16) and max_seq_len <= 32768)
