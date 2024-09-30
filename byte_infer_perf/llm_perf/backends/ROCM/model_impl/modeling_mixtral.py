@@ -834,8 +834,7 @@ class MixtralSdpaAttention(MixtralAttention):
             query_states = query_states.contiguous()
             key_states = key_states.contiguous()
             value_states = value_states.contiguous()
-        is_fake_cache = os.environ["USE_FAKE_CACHE"]
-        if is_context and is_fake_cache:
+        if is_context:
             attn_output = torch.nn.functional.scaled_dot_product_attention(
                 query_states,
                 key_states,
