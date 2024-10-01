@@ -796,33 +796,8 @@ class MixtralSdpaAttention(MixtralAttention):
 
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
 
-        if is_context:
-            key_states = repeat_kv(key_states, self.num_key_value_groups)
-            value_states = repeat_kv(value_states, self.num_key_value_groups)
-        
-        # if attention_mask is not None:
-        #     if attention_mask.size() != (bsz, 1, q_len, kv_seq_len):
-        #         raise ValueError(
-        #             f"Attention mask should be of size {(bsz, 1, q_len, kv_seq_len)}, but is {attention_mask.size()}"
-        #         )
 
-        attention_mask = kwargs.get("full_attention_mask")
-
-        # SDPA with memory-efficient backend is currently (torch==2.1.2) bugged with non-contiguous inputs with custom attn_mask,
-        # Reference: https://github.com/pytorch/pytorch/issues/112577.
-        if query_states.device.type == "cuda" and attention_mask is not None:
-            query_states = query_states.contiguous()
-            key_states = key_states.contiguous()
-            value_states = value_states.contiguous()
-
-        if is_context:
-            attn_output = torch.nn.functional.scaled_dot_product_attention(
-                query_states,
-                key_states,
-                value_states,
-                attn_mask=~attention_mask,
-                dropout_p=self.attention_dropout if self.training else 0.0,
-            )
+        ##################### init caches ##################
         # todo: move tables out of layer, only one per model
         block_size = 32
         max_num_blocks = 16384
@@ -850,24 +825,55 @@ class MixtralSdpaAttention(MixtralAttention):
                                     dtype=query_states.dtype,
                                     device=query_states.device)
             self.cache_inited = True
+        ##################### init caches ##################
+
         slot_offset = torch.arange(0, bsz * max_num_blocks_per_seq * block_size, 
                                    block_size * max_num_blocks_per_seq,
                                    device = query_states.device).unsqueeze(1)
         slot_mapping = position_ids + slot_offset
 
-        query_states = query_states.view(-1, self.num_heads, self.head_dim)
-        key_states = key_states.view(-1, self.num_key_value_heads, self.head_dim)
-        value_states = value_states.view(-1, self.num_key_value_heads, self.head_dim)
+        key_states_cache = key_states.view(-1, self.num_key_value_heads, self.head_dim).contiguous()
+        value_states_cache = value_states.view(-1, self.num_key_value_heads, self.head_dim).contiguous()
         if self.layer_idx < 1:
-            print("shapes cache qkv:", position_ids.shape,slot_mapping.shape, self.value_cache.shape, 
-                  query_states.shape, key_states.shape, value_states.shape)
-        PagedAttention.write_to_paged_cache(key_states, 
-                                            value_states, 
+            print("shapes cache qkv:", self.key_cache.shape, self.value_cache.shape, 
+                  query_states.shape, value_states_cache.shape, value_states_cache.shape)
+        PagedAttention.write_to_paged_cache(key_states_cache, 
+                                            value_states_cache, 
                                             self.key_cache,
                                             self.value_cache,
                                             slot_mapping.view(-1),
                                             "auto", 1.0, 1.0)
+        
+        if is_context:
+            key_states = repeat_kv(key_states, self.num_key_value_groups)
+            value_states = repeat_kv(value_states, self.num_key_value_groups)
+        
+        # if attention_mask is not None:
+        #     if attention_mask.size() != (bsz, 1, q_len, kv_seq_len):
+        #         raise ValueError(
+        #             f"Attention mask should be of size {(bsz, 1, q_len, kv_seq_len)}, but is {attention_mask.size()}"
+        #         )
+
+        attention_mask = kwargs.get("full_attention_mask")
+
+        # SDPA with memory-efficient backend is currently (torch==2.1.2) bugged with non-contiguous inputs with custom attn_mask,
+        # Reference: https://github.com/pytorch/pytorch/issues/112577.
+        if query_states.device.type == "cuda" and attention_mask is not None:
+            query_states = query_states.contiguous()
+            key_states = key_states.contiguous()
+            value_states = value_states.contiguous()
+
+        if is_context:
+            attn_output = torch.nn.functional.scaled_dot_product_attention(
+                query_states,
+                key_states,
+                value_states,
+                attn_mask=~attention_mask,
+                dropout_p=self.attention_dropout if self.training else 0.0,
+            )
+
         if not is_context:
+            query_states = query_states.view(-1, self.num_heads, self.head_dim)
             seq_lens = torch.tensor(all_q_len + all_kv_len, dtype=torch.int, device=query_states.device)
             attn_output = PagedAttention.forward_decode(
                 query_states,
