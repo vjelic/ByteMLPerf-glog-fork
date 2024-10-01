@@ -785,7 +785,8 @@ class MixtralSdpaAttention(MixtralAttention):
         valid_slot_ids = kwargs.get("valid_slot_ids")
         all_q_len = kwargs.get("all_q_len")
         all_kv_len = kwargs.get("all_kv_len")
-
+        if self.layer_idx < 1:
+            print("input shapes qkv:", is_context, self.layer_idx, query_states.shape, key_states.shape, value_states.shape)
         max_kv_len = max(all_kv_len) if is_context else max(all_q_len) + max(all_kv_len)
 
         # kv_seq_len = key_states.shape[-2]
@@ -825,10 +826,14 @@ class MixtralSdpaAttention(MixtralAttention):
         # todo: move tables out of layer, only one per model
         block_size = 32
         max_num_blocks = 16384
-        max_num_blocks_per_seq = (max_kv_len + block_size - 1) //block_size
+        # max_seq_len_supported = max_kv_len
+        max_seq_len_supported = 10240
+        if max_kv_len > max_seq_len_supported or bsz >32:
+            raise ValueError("unsupport kv_len for current hack, too long or bsz too big")
+        max_num_blocks_per_seq = (max_seq_len_supported + block_size - 1) //block_size
         if not self.cache_inited:
             self.block_tables_lst: List[List[int]] = []
-            for batch_idx in range(bsz):
+            for batch_idx in range(32):
                 block_start = max_num_blocks_per_seq * batch_idx
                 block_table = [i + block_start for i in range(max_num_blocks_per_seq)]
                 self.block_tables_lst.append(block_table)
@@ -845,31 +850,35 @@ class MixtralSdpaAttention(MixtralAttention):
                                     dtype=query_states.dtype,
                                     device=query_states.device)
             self.cache_inited = True
-        slot_offset = torch.arange(0, bsz * max_num_blocks_per_seq, 
-                                   max_num_blocks_per_seq, 
-                                   device = position_ids.device).unsqueeze(1)
+        slot_offset = torch.arange(0, bsz * max_num_blocks_per_seq * block_size, 
+                                   block_size * max_num_blocks_per_seq,
+                                   device = query_states.device).unsqueeze(1)
         slot_mapping = position_ids + slot_offset
+
+        query_states = query_states.view(-1, self.num_heads, self.head_dim)
+        key_states = key_states.view(-1, self.num_key_value_heads, self.head_dim)
+        value_states = value_states.view(-1, self.num_key_value_heads, self.head_dim)
+        if self.layer_idx < 1:
+            print("shapes cache qkv:", position_ids.shape,slot_mapping.shape, self.value_cache.shape, 
+                  query_states.shape, key_states.shape, value_states.shape)
         PagedAttention.write_to_paged_cache(key_states, 
                                             value_states, 
                                             self.key_cache,
                                             self.value_cache,
-                                            slot_mapping,
+                                            slot_mapping.view(-1),
                                             "auto", 1.0, 1.0)
         if not is_context:
-            query_states = query_states.view(-1, self.num_heads, self.head_dim)
-            key_states = key_states.view(-1, self.num_key_value_heads, self.head_dim)
-            value_states = value_states.view(-1, self.num_key_value_heads, self.head_dim)
             seq_lens = torch.tensor(all_q_len + all_kv_len, dtype=torch.int, device=query_states.device)
             attn_output = PagedAttention.forward_decode(
                 query_states,
                 self.key_cache,
                 self.value_cache,
-                self.block_tables,
+                self.block_tables[0:bsz],
                 seq_lens,
-                int(max_kv_len),
+                int(max_seq_len_supported),
                 "auto",
                 self.num_key_value_heads,
-                1.0,
+                float(1.0 / (self.head_dim**0.5)),
                 None,
                 1.0,
                 1.0,

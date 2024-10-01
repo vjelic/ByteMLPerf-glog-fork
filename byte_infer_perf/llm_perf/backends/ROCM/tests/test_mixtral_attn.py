@@ -154,7 +154,6 @@ class TestMixtralAttention(unittest.TestCase):
         
         mode = "decode"
         inputs2 = build_inputs(mode, bs, seq_len, config.hidden_size)
-        inputs2["past_key_value"] = past_key_value
         output, attn_weights, past_key_value = attention2(**inputs2)
         output, attn_weights, past_key_value = attention2(**inputs2)
         output, attn_weights, past_key_value = attention2(**inputs2)
