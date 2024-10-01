@@ -874,7 +874,7 @@ class MixtralSdpaAttention(MixtralAttention):
 
         if not is_context:
             query_states = query_states.view(-1, self.num_heads, self.head_dim)
-            seq_lens = torch.tensor(all_q_len + all_kv_len, dtype=torch.int, device=query_states.device)
+            seq_lens = torch.tensor( [x + y for x, y in zip(all_q_len, all_kv_len)], dtype=torch.int, device=query_states.device)
             attn_output = PagedAttention.forward_decode(
                 query_states,
                 self.key_cache,
