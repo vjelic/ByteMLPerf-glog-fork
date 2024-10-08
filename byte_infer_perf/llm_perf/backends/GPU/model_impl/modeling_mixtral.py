@@ -745,6 +745,7 @@ class MixtralSdpaAttention(MixtralAttention):
         query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
         value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
+        print("input shapes qkv:", query_states.shape, key_states.shape, value_states.shape)
 
         is_context = kwargs.get("is_context")
         valid_slot_ids = kwargs.get("valid_slot_ids")
@@ -813,7 +814,7 @@ class MixtralSdpaAttention(MixtralAttention):
         #     # The q_len > 1 is necessary to match with AttentionMaskConverter.to_causal_4d that does not create a causal mask in case q_len == 1.
         #     is_causal=self.is_causal and attention_mask is None and q_len > 1,
         # )
-
+        print("shapes qkv:", query_states.shape, key_states.shape, value_states.shape)
         attn_output = torch.nn.functional.scaled_dot_product_attention(
             query_states,
             key_states,
