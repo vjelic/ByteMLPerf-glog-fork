@@ -812,6 +812,8 @@ class MixtralSdpaAttention(MixtralAttention):
         valid_slot_ids = kwargs.get("valid_slot_ids")
         all_q_len = kwargs.get("all_q_len")
         all_kv_len = kwargs.get("all_kv_len")
+        # if self.layer_idx < 1:
+        #     print("input shapes qkv:", is_context, self.layer_idx, query_states.shape, key_states.shape, value_states.shape)
         max_kv_len = max(all_kv_len) if is_context else max(all_q_len) + max(all_kv_len)
 
         # kv_seq_len = key_states.shape[-2]
@@ -865,6 +867,9 @@ class MixtralSdpaAttention(MixtralAttention):
 
         key_states_cache = key_states.view(-1, self.num_key_value_heads, self.head_dim).contiguous()
         value_states_cache = value_states.view(-1, self.num_key_value_heads, self.head_dim).contiguous()
+        # if self.layer_idx < 1:
+        #     print("shapes cache qkv:", self.key_cache.shape, self.value_cache.shape, 
+        #           query_states.shape, value_states_cache.shape, value_states_cache.shape)
         PagedAttention.write_to_paged_cache(key_states_cache, 
                                             value_states_cache, 
                                             self.key_cache,
@@ -899,7 +904,6 @@ class MixtralSdpaAttention(MixtralAttention):
                 attn_mask=~attention_mask,
                 dropout_p=self.attention_dropout if self.training else 0.0,
             )
-            attn_output = attn_output.transpose(1, 2)
         else:
             query_states = query_states.view(-1, self.num_heads, self.head_dim)
             seq_lens = torch.tensor( [x + y for x, y in zip(all_q_len, all_kv_len)], dtype=torch.int, device=query_states.device)
@@ -916,7 +920,9 @@ class MixtralSdpaAttention(MixtralAttention):
                 None,
                 1.0,
                 1.0,
-            )
+            ).contiguous()
+        if is_context:
+            attn_output = attn_output.transpose(1, 2).contiguous()
         attn_output = attn_output.view(bsz, q_len, self.num_heads * self.head_dim)
 
         attn_output = self.o_proj(attn_output)
