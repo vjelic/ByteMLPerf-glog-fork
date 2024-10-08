@@ -2,17 +2,10 @@
 
 #include <torch/all.h>
 
-void LLMM_Silu(
-    at::Tensor& in_a, at::Tensor& in_b, at::Tensor& out_c,
-    const int64_t rows_per_block);
-
 void LLMM1(
     at::Tensor& in_a, at::Tensor& in_b, at::Tensor& out_c,
     const int64_t rows_per_block);
 
-void wvSpltK(
-    at::Tensor& in_a, at::Tensor& in_b, at::Tensor& out_c,
-    const int64_t N_in, const int64_t CuCount);
 
 void paged_attention_rocm(
     torch::Tensor& out, torch::Tensor& exp_sums,

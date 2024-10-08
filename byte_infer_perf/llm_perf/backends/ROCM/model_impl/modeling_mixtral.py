@@ -59,6 +59,8 @@ from ..rocm_kernels.fused_moe import fused_moe
 from ..rocm_kernels import paged_attn
 from ..rocm_kernels.paged_attn import PagedAttention
 import rocmKernels as ops
+from ..rocm_kernels.tuned_gemm import tgemm
+from ..rocm_kernels.rotary_embedding import get_rope
 
 if is_flash_attn_2_available():
     from flash_attn import flash_attn_func, flash_attn_varlen_func
@@ -302,6 +304,27 @@ def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
     return hidden_states.reshape(batch, num_key_value_heads * n_rep, slen, head_dim)
 
 
+class Linear(nn.Module):
+    def __init__(self, in_features, out_features, bias=True, dtype=None):
+        super().__init__()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.weight = nn.Parameter(torch.empty(out_features, in_features, dtype=dtype))
+        if bias:
+            self.bias = nn.Parameter(torch.empty(out_features, dtype=dtype))
+        else:
+            self.register_parameter("bias", None)
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        nn.init.xavier_uniform_(self.weight)
+        if self.bias is not None:
+            nn.init.zeros_(self.bias)
+
+    def forward(self, x):
+        # return F.linear(x, self.weight, self.bias)
+        return tgemm.mm(x, self.weight, self.bias)
+
 # Copied from transformers.models.mistral.modeling_mistral.MistralAttention with Mistral->Mixtral
 class MixtralAttention(nn.Module):
     """
@@ -339,15 +362,22 @@ class MixtralAttention(nn.Module):
                 f"hidden_size must be divisible by num_heads (got `hidden_size`: {self.hidden_size}"
                 f" and `num_heads`: {self.num_heads})."
             )
-        self.q_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim // self.mp_size, bias=False)
-        self.k_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim // self.mp_size, bias=False)
-        self.v_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim // self.mp_size, bias=False)
-        self.o_proj = nn.Linear(self.num_heads * self.head_dim // self.mp_size, self.hidden_size, bias=False)
+        self.q_proj = Linear(self.hidden_size, self.num_heads * self.head_dim // self.mp_size, bias=False)
+        self.k_proj = Linear(self.hidden_size, self.num_key_value_heads * self.head_dim // self.mp_size, bias=False)
+        self.v_proj = Linear(self.hidden_size, self.num_key_value_heads * self.head_dim // self.mp_size, bias=False)
+        self.o_proj = Linear(self.num_heads * self.head_dim // self.mp_size, self.hidden_size, bias=False)
 
         self.rotary_emb = MixtralRotaryEmbedding(
             self.head_dim,
             max_position_embeddings=self.max_position_embeddings,
             base=self.rope_theta,
+        )
+        self.rotary_emb_fused = get_rope(
+            self.head_dim,
+            rotary_dim=self.head_dim,
+            max_position=self.max_position_embeddings,
+            base=int(self.rope_theta),
+            is_neox_style=True,
         )
 
         self.num_heads = self.num_heads // self.mp_size
@@ -777,9 +807,6 @@ class MixtralSdpaAttention(MixtralAttention):
         key_states = self.k_proj(hidden_states)
         value_states = self.v_proj(hidden_states)
 
-        query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
-        key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
-        value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
 
         is_context = kwargs.get("is_context")
         valid_slot_ids = kwargs.get("valid_slot_ids")
@@ -792,9 +819,15 @@ class MixtralSdpaAttention(MixtralAttention):
         # kv_seq_len = key_states.shape[-2]
         # if past_key_value is not None:
         #     kv_seq_len += past_key_value.get_usable_length(kv_seq_len, self.layer_idx)
-        cos, sin = self.rotary_emb(value_states, seq_len=max_kv_len)
 
-        query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
+        # fused rope
+        query_states, key_states = self.rotary_emb_fused(position_ids, query_states, key_states)
+        query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
+        key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
+        value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
+        # # old rope
+        # cos, sin = self.rotary_emb(value_states, seq_len=max_kv_len)
+        # query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
 
 
         ##################### init caches ##################
@@ -871,8 +904,7 @@ class MixtralSdpaAttention(MixtralAttention):
                 attn_mask=~attention_mask,
                 dropout_p=self.attention_dropout if self.training else 0.0,
             )
-
-        if not is_context:
+        else:
             query_states = query_states.view(-1, self.num_heads, self.head_dim)
             seq_lens = torch.tensor( [x + y for x, y in zip(all_q_len, all_kv_len)], dtype=torch.int, device=query_states.device)
             attn_output = PagedAttention.forward_decode(
@@ -914,9 +946,9 @@ class MixtralBlockSparseTop2MLP(nn.Module):
         self.ffn_dim = config.intermediate_size
         self.hidden_dim = config.hidden_size
 
-        self.w1 = nn.Linear(self.hidden_dim, self.ffn_dim // self.mp_size, bias=False)
-        self.w2 = nn.Linear(self.ffn_dim // self.mp_size, self.hidden_dim, bias=False)
-        self.w3 = nn.Linear(self.hidden_dim, self.ffn_dim // self.mp_size, bias=False)
+        self.w1 = Linear(self.hidden_dim, self.ffn_dim // self.mp_size, bias=False)
+        self.w2 = Linear(self.ffn_dim // self.mp_size, self.hidden_dim, bias=False)
+        self.w3 = Linear(self.hidden_dim, self.ffn_dim // self.mp_size, bias=False)
 
         self.act_fn = ACT2FN[config.hidden_act]
 
@@ -954,7 +986,7 @@ class MixtralSparseMoeBlock(nn.Module):
         self.top_k = config.num_experts_per_tok
 
         # gating
-        self.gate = nn.Linear(self.hidden_dim, self.num_experts, bias=False)
+        self.gate = Linear(self.hidden_dim, self.num_experts, bias=False)
 
         # self.experts = nn.ModuleList([MixtralBlockSparseTop2MLP(config) for _ in range(self.num_experts)])
 
@@ -1118,7 +1150,7 @@ class MixtralPreTrainedModel(PreTrainedModel):
 
     def _init_weights(self, module):
         std = self.config.initializer_range
-        if isinstance(module, nn.Linear):
+        if isinstance(module, Linear):
             module.weight.data.normal_(mean=0.0, std=std)
             if module.bias is not None:
                 module.bias.data.zero_()
@@ -1299,7 +1331,7 @@ class MixtralForCausalLM(MixtralPreTrainedModel):
 
         self.model = MixtralModel(config)
         self.vocab_size = config.vocab_size
-        self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
+        self.lm_head = Linear(config.hidden_size, config.vocab_size, bias=False)
         self.router_aux_loss_coef = config.router_aux_loss_coef
         self.num_experts = config.num_local_experts
         self.num_experts_per_tok = config.num_experts_per_tok
