@@ -812,8 +812,6 @@ class MixtralSdpaAttention(MixtralAttention):
         valid_slot_ids = kwargs.get("valid_slot_ids")
         all_q_len = kwargs.get("all_q_len")
         all_kv_len = kwargs.get("all_kv_len")
-        # if self.layer_idx < 1:
-        #     print("input shapes qkv:", is_context, self.layer_idx, query_states.shape, key_states.shape, value_states.shape)
         max_kv_len = max(all_kv_len) if is_context else max(all_q_len) + max(all_kv_len)
 
         # kv_seq_len = key_states.shape[-2]
@@ -867,9 +865,6 @@ class MixtralSdpaAttention(MixtralAttention):
 
         key_states_cache = key_states.view(-1, self.num_key_value_heads, self.head_dim).contiguous()
         value_states_cache = value_states.view(-1, self.num_key_value_heads, self.head_dim).contiguous()
-        # if self.layer_idx < 1:
-        #     print("shapes cache qkv:", self.key_cache.shape, self.value_cache.shape, 
-        #           query_states.shape, value_states_cache.shape, value_states_cache.shape)
         PagedAttention.write_to_paged_cache(key_states_cache, 
                                             value_states_cache, 
                                             self.key_cache,
