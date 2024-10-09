@@ -120,7 +120,6 @@ class GpuInferencer(CoreInferencer):
         **kwargs
     ):
         input_dict = self.prepare_inputs(tasks, **kwargs)
-        print("mpinputs:", input_dict)
         output_dict = self.mp_engine.mp_forward(input_dict)
         
         logits = output_dict["logits"]
