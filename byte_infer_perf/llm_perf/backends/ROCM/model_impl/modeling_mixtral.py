@@ -857,12 +857,16 @@ class MixtralSdpaAttention(MixtralAttention):
                                     device=query_states.device)
             self.cache_inited = True
         ##################### init caches ##################
-
-        slot_offset = torch.arange(0, bsz * max_num_blocks_per_seq * block_size, 
+        
+        if is_context:
+            slot_offset = torch.tensor([valid_slot_ids[0] * max_num_blocks_per_seq * block_size],
+                                   device = position_ids.device,
+                                   dtype = position_ids.dtype).unsqueeze(1)
+        else:
+            slot_offset = torch.arange(0, bsz * max_num_blocks_per_seq * block_size, 
                                    block_size * max_num_blocks_per_seq,
-                                   device = query_states.device).unsqueeze(1)
+                                   device = position_ids.device).unsqueeze(1)
         slot_mapping = position_ids + slot_offset
-
         key_states_cache = key_states.view(-1, self.num_key_value_heads, self.head_dim).contiguous()
         value_states_cache = value_states.view(-1, self.num_key_value_heads, self.head_dim).contiguous()
         PagedAttention.write_to_paged_cache(key_states_cache, 
@@ -898,7 +902,7 @@ class MixtralSdpaAttention(MixtralAttention):
                 value_states,
                 attn_mask=~attention_mask,
                 dropout_p=self.attention_dropout if self.training else 0.0,
-            )
+            ).transpose(1, 2).contiguous()
         else:
             query_states = query_states.view(-1, self.num_heads, self.head_dim)
             seq_lens = torch.tensor( [x + y for x, y in zip(all_q_len, all_kv_len)], dtype=torch.int, device=query_states.device)
@@ -916,8 +920,7 @@ class MixtralSdpaAttention(MixtralAttention):
                 1.0,
                 1.0,
             ).contiguous()
-        if is_context:
-            attn_output = attn_output.transpose(1, 2).contiguous()
+
         attn_output = attn_output.view(bsz, q_len, self.num_heads * self.head_dim)
 
         attn_output = self.o_proj(attn_output)

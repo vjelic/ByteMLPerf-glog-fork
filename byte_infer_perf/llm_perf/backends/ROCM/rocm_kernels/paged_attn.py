@@ -11,6 +11,10 @@ def is_hip():
 
 # Should be the same as PARTITION_SIZE in `paged_attention_v2_launcher`.
 _PARTITION_SIZE = 512 if not is_hip() else 1024
+_PARTITION_SIZE_ROCM = 512
+_DEVICE_PROPERTIES = torch.cuda.get_device_properties("cuda")
+_ON_NAVI = hasattr(_DEVICE_PROPERTIES, "gcnArchName") and \
+            "gfx1" in torch.cuda.get_device_properties("cuda").gcnArchName
 
 
 # page attention ops
@@ -117,8 +121,16 @@ class PagedAttentionMetadata:
     block_tables: Optional[torch.Tensor]
 
 
-class PagedAttention:
+def _use_rocm_custom_paged_attention(qtype: torch.dtype, head_size: int,
+                                    block_size: int, gqa_ratio: int,
+                                    max_seq_len: int) -> bool:
+    # rocm custom page attention not support on navi (gfx1*)
+    return (not _ON_NAVI and (qtype == torch.half or qtype == torch.bfloat16)
+            and (head_size == 64 or head_size == 128)
+            and (block_size == 16 or block_size == 32)
+            and (gqa_ratio >= 1 and gqa_ratio <= 16) and max_seq_len <= 32768)
 
+class PagedAttention:
     @staticmethod
     def get_supported_head_sizes() -> List[int]:
         return [64, 80, 96, 112, 120, 128, 192, 256]
@@ -190,55 +202,19 @@ class PagedAttention:
         blocksparse_block_size: int = 64,
         blocksparse_head_sliding_step: int = 0,
     ) -> torch.Tensor:
-        if blocksparse_vert_stride is not None and blocksparse_vert_stride > 1:
-            # use blocksparse paged attention
-            block_size = value_cache.size(-1)
-            assert (blocksparse_block_size > 0 and
-                    blocksparse_block_size % block_size == 0), \
-                (f"{blocksparse_block_size=} needs to be a multiple of"
-                 f"{block_size=} used in block_tables.")
-
-        output = torch.empty_like(query)
-        block_size = value_cache.shape[3]
+        # Whether to use rocm custom paged attention or not
         num_seqs, num_heads, head_size = query.shape
-        max_num_partitions = ((max_seq_len + _PARTITION_SIZE - 1) //
-                              _PARTITION_SIZE)
-        # NOTE(woosuk): We use a simple heuristic to decide whether to use
-        # PagedAttention V1 or V2. If the number of partitions is 1, we use
-        # V1 to avoid the overhead of reduction. Also, if the number of
-        # sequences or heads is large, we use V1 since there is enough work
-        # to parallelize.
-        # TODO(woosuk): Tune this heuristic.
-        # For context len > 8192, use V2 kernel to avoid shared memory shortage.
-        use_v1 = (max_seq_len <= 8192
-                  and (max_num_partitions == 1 or num_seqs * num_heads > 512))
-
-        if use_v1:
-            # Run PagedAttention V1.
-            ops.paged_attention_v1(
-                output,
-                query,
-                key_cache,
-                value_cache,
-                num_kv_heads,
-                scale,
-                block_tables,
-                seq_lens,
-                block_size,
-                max_seq_len,
-                alibi_slopes,
-                kv_cache_dtype,
-                k_scale,
-                v_scale,
-                tp_rank,
-                blocksparse_local_blocks,
-                blocksparse_vert_stride,
-                blocksparse_block_size,
-                blocksparse_head_sliding_step,
-            )
-        else:
-            # Run PagedAttention V2.
-            assert _PARTITION_SIZE % block_size == 0
+        block_size = value_cache.shape[3]
+        gqa_ratio = num_heads // num_kv_heads
+        use_custom = _use_rocm_custom_paged_attention(
+            query.dtype, head_size, block_size, gqa_ratio,
+            max_seq_len)
+        output = torch.empty_like(query)
+        if use_custom:
+            max_num_partitions = (
+                (max_seq_len + _PARTITION_SIZE_ROCM - 1) //
+                _PARTITION_SIZE_ROCM)
+            assert _PARTITION_SIZE_ROCM % block_size == 0
             tmp_output = torch.empty(
                 size=(num_seqs, num_heads, max_num_partitions, head_size),
                 dtype=output.dtype,
@@ -250,7 +226,8 @@ class PagedAttention:
                 device=output.device,
             )
             max_logits = torch.empty_like(exp_sums)
-            ops.paged_attention_v2(
+            out = output
+            ops.paged_attention_rocm(
                 output,
                 exp_sums,
                 max_logits,
@@ -268,12 +245,89 @@ class PagedAttention:
                 kv_cache_dtype,
                 k_scale,
                 v_scale,
-                tp_rank,
-                blocksparse_local_blocks,
-                blocksparse_vert_stride,
-                blocksparse_block_size,
-                blocksparse_head_sliding_step,
             )
+        else:
+            max_num_partitions = ((max_seq_len + _PARTITION_SIZE - 1) //
+                                _PARTITION_SIZE)
+            if blocksparse_vert_stride is not None and blocksparse_vert_stride > 1:
+                # use blocksparse paged attention
+                block_size = value_cache.size(-1)
+                assert (blocksparse_block_size > 0 and
+                        blocksparse_block_size % block_size == 0), \
+                    (f"{blocksparse_block_size=} needs to be a multiple of"
+                    f"{block_size=} used in block_tables.")
+
+            # NOTE(woosuk): We use a simple heuristic to decide whether to use
+            # PagedAttention V1 or V2. If the number of partitions is 1, we use
+            # V1 to avoid the overhead of reduction. Also, if the number of
+            # sequences or heads is large, we use V1 since there is enough work
+            # to parallelize.
+            # TODO(woosuk): Tune this heuristic.
+            # For context len > 8192, use V2 kernel to avoid shared memory shortage.
+            use_v1 = (max_seq_len <= 8192
+                    and (max_num_partitions == 1 or num_seqs * num_heads > 512))
+
+            if use_v1:
+                # Run PagedAttention V1.
+                ops.paged_attention_v1(
+                    output,
+                    query,
+                    key_cache,
+                    value_cache,
+                    num_kv_heads,
+                    scale,
+                    block_tables,
+                    seq_lens,
+                    block_size,
+                    max_seq_len,
+                    alibi_slopes,
+                    kv_cache_dtype,
+                    k_scale,
+                    v_scale,
+                    tp_rank,
+                    blocksparse_local_blocks,
+                    blocksparse_vert_stride,
+                    blocksparse_block_size,
+                    blocksparse_head_sliding_step,
+                )
+            else:
+                # Run PagedAttention V2.
+                assert _PARTITION_SIZE % block_size == 0
+                tmp_output = torch.empty(
+                    size=(num_seqs, num_heads, max_num_partitions, head_size),
+                    dtype=output.dtype,
+                    device=output.device,
+                )
+                exp_sums = torch.empty(
+                    size=(num_seqs, num_heads, max_num_partitions),
+                    dtype=torch.float32,
+                    device=output.device,
+                )
+                max_logits = torch.empty_like(exp_sums)
+                ops.paged_attention_v2(
+                    output,
+                    exp_sums,
+                    max_logits,
+                    tmp_output,
+                    query,
+                    key_cache,
+                    value_cache,
+                    num_kv_heads,
+                    scale,
+                    block_tables,
+                    seq_lens,
+                    block_size,
+                    max_seq_len,
+                    alibi_slopes,
+                    kv_cache_dtype,
+                    k_scale,
+                    v_scale,
+                    tp_rank,
+                    blocksparse_local_blocks,
+                    blocksparse_vert_stride,
+                    blocksparse_block_size,
+                    blocksparse_head_sliding_step,
+                )
         return output
 
     # @staticmethod
