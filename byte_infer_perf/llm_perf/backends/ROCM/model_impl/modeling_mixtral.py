@@ -62,6 +62,9 @@ import rocmKernels as ops
 from ..rocm_kernels.tuned_gemm import tgemm
 from ..rocm_kernels.rotary_embedding import get_rope
 
+from vllm.distributed.device_communicators.custom_all_reduce import (
+            CustomAllreduce)
+
 if is_flash_attn_2_available():
     from flash_attn import flash_attn_func, flash_attn_varlen_func
     from flash_attn.bert_padding import index_first_axis, pad_input, unpad_input  # noqa
@@ -1040,6 +1043,12 @@ class MixtralDecoderLayer(nn.Module):
         self.input_layernorm = MixtralRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
         self.post_attention_layernorm = MixtralRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
+        self.ranks = list(range(self.mp_size))
+        self.cpu_group = torch.distributed.new_group(self.ranks, backend="gloo")
+        test_id = torch.cuda.current_device()
+        self.device = torch.device(f"cuda:{test_id}")
+        self.ca_comm = CustomAllreduce(self.cpu_group, self.device)
+
     def forward(
         self,
         hidden_states: torch.Tensor,
@@ -1093,8 +1102,16 @@ class MixtralDecoderLayer(nn.Module):
             **kwargs, 
         )
         if self.mp_size > 1:
-            dist.all_reduce(hidden_states)
-            
+            out = None
+            if self.ca_comm is not None and \
+            not self.ca_comm.disabled and \
+                self.ca_comm.should_custom_ar(hidden_states):
+                out = self.ca_comm.custom_all_reduce(hidden_states)
+
+            if out is not None:
+                hidden_states = out
+            else:
+                dist.all_reduce(hidden_states)
 
         # Fully Connected
         # hidden_states = residual + hidden_states
@@ -1106,7 +1123,16 @@ class MixtralDecoderLayer(nn.Module):
         # print(f'{os.environ.get("LOCAL_RANK", "0")}:{self.layer_idx} {hidden_states.shape=}')
         # print(f'{os.environ.get("LOCAL_RANK", "0")}:{self.layer_idx} {hidden_states=}')
         if self.mp_size > 1:
-            dist.all_reduce(hidden_states)
+            out = None
+            if self.ca_comm is not None and \
+            not self.ca_comm.disabled and \
+                self.ca_comm.should_custom_ar(hidden_states):
+                out = self.ca_comm.custom_all_reduce(hidden_states)
+
+            if out is not None:
+                hidden_states = out
+            else:
+                dist.all_reduce(hidden_states)
 
         # hidden_states = residual + hidden_states
         # outputs = (hidden_states,)
