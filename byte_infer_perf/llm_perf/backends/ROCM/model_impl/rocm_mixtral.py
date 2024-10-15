@@ -25,7 +25,7 @@ from ..rocm_kernels.dist.parallel_state import (ensure_model_parallel_initialize
 from ..rocm_kernels.dist.utils import (get_open_port,
                                        get_distributed_init_method,
                                        get_ip)
-setup_logger('info')
+# setup_logger('info')
 
 class GPUMixtralLoader(GpuCkptLoader):
     def __init__(
