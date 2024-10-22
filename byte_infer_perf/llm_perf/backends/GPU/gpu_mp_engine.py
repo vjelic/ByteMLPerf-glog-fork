@@ -259,14 +259,16 @@ class GpuMpEngineWithGraph(GpuMpEngine):
                     forward_inputs,
                 ) = input_queue.get(block=True)
 
+                # Only copy tensors to gpu if we aren't in replay mode.
+                # Future cases we'll want to take advantage of the copy_ operator
                 if 'replay' not in forward_inputs:
                     forward_inputs["cache_batch_offset"] = model.cache_batch_offset
                     inputs_dict = self.build_inputs(forward_inputs)
+
                 # this is the capture phase of graph
                 if 'capture' in forward_inputs:
                     graph = torch.cuda.CUDAGraph()   # reset cuda graph each time
 
-                    # model.forward(inputs_dict)
                     _NUM_WARMUP_ITERS=2
                     with torch.cuda.stream(s):
                         for _ in range(_NUM_WARMUP_ITERS):
@@ -274,16 +276,11 @@ class GpuMpEngineWithGraph(GpuMpEngine):
 
                     torch.cuda.current_stream().wait_stream(s)
                     torch.cuda.synchronize()
-                   # graph.enable_debug_mode()
                     with torch.cuda.graph(graph):
-                        logits = model.forward(inputs_dict)
+                        output_dict = model.forward(inputs_dict)
 
                     torch.cuda.synchronize()
-                    #graph.debug_dump(f"/src/cuda_graph{str(local_rank)}.dot")
                     output_dict = dict()
-                    #inputs_dict["input_ids"][0][0] = 128
-                    # graph.replay()
-                    # torch.cuda.synchronize()
 
                     output_dict["duration_ms"] = 0
                     # TP realization: rank0 send result back to main process
