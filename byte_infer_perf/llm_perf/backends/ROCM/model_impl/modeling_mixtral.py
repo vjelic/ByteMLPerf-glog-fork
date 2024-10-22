@@ -875,7 +875,7 @@ class MixtralSdpaAttention(MixtralAttention):
                 None,
                 1.0,
                 1.0,
-            )
+            ).contiguous()
 
         attn_output = attn_output.view(bsz, q_len, self.num_heads * self.head_dim)
         attn_output = self.o_proj(attn_output)
@@ -1240,18 +1240,9 @@ class MixtralModel(MixtralPreTrainedModel):
             layer_index = kwargs.pop("fixed_layer_index", -1)
             layer_index = layer_index % len(self.layers)
             # create random input ids on cpu and copy to device
-<<<<<<< HEAD
-            if random_seed is not None:
-                # RuntimeError: Cannot call CUDAGeneratorImpl::set_current_seed during CUDA graph capture.
-                torch.manual_seed(random_seed)
-            random_input_ids = torch.randint(10, self.vocab_size, input_ids.shape, dtype=torch.int64, device="cpu").to(input_ids.device)
-
-            hidden_states = self.embed_tokens(random_input_ids)
-=======
             #torch.manual_seed(random_seed)
             #random_input_ids = torch.randint(10, self.vocab_size, input_ids.shape, dtype=torch.int64, device="cpu").to(input_ids.device)
             hidden_states = self.embed_tokens(input_ids)
->>>>>>> 4494d72 (Add further hipgraph support)
             
             for _ in self.layers:
                 layer_outputs, residual = self.layers[layer_index](
@@ -1379,11 +1370,11 @@ class MixtralForCausalLM(MixtralPreTrainedModel):
 
         # print(f'{os.environ.get("LOCAL_RANK", "0")} {outputs=}')
         hidden_states = outputs[0]
-      
+
+        # Q: Why are we converting the linear call to a float? why not compute in float?
+        # Also should this be half?
         logits = self.lm_head(hidden_states)
         logits = logits.float()
-        # if(os.environ.get("LOCAL_RANK") == "0"):
-        #     print(f'>>>logits2 {logits.shape}, {logits} {logits.data_ptr()}')
         # print(f'{os.environ.get("LOCAL_RANK", "0")}:{hidden_states.shape=}')
         # print(f'{os.environ.get("LOCAL_RANK", "0")}:{hidden_states=}')
         # print(f'{os.environ.get("LOCAL_RANK", "0")}:{logits.shape=}')

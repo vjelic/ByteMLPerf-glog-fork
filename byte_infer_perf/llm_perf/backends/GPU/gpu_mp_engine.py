@@ -5,7 +5,6 @@ import signal
 import pathlib
 from multiprocessing import Queue
 from typing import List
-import time
 import torch
 import torch.nn as nn
 import torch.distributed as dist
@@ -206,7 +205,6 @@ class GpuMpEngine(CoreMpEngine):
             self._input_queues.put(args, block=True)
 
         # wait for one subprocess send result back to main process
-        #for _ in range(self.world_size):
         output_dict = self._output_queues.get(block=True)
         return output_dict
 

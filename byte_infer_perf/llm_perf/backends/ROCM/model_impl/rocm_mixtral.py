@@ -242,4 +242,9 @@ class GPUMixtral(nn.Module):
         # context: [1, seq_len] --> [1, seq_len, vocab_size] or [1, 1, vocab_size]
         # decode: [max_batch_size, 1]
 
-        return model_outputs.logits
+        logits = model_outputs.logits
+
+        output_dict = {
+            "logits": logits
+        }
+        return output_dict
