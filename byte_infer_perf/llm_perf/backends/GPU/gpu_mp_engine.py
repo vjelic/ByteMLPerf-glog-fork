@@ -5,7 +5,7 @@ import signal
 import pathlib
 from multiprocessing import Queue
 from typing import List
-
+import time
 import torch
 import torch.nn as nn
 import torch.distributed as dist
@@ -92,16 +92,30 @@ class GpuMpEngine(CoreMpEngine):
         ).cuda()
         
         is_context = forward_inputs["is_context"]
+
+        batch_offset = forward_inputs["cache_batch_offset"]
+
         if is_context:
             forward_inputs["full_attention_mask"] = get_context_masks(
                 forward_inputs["input_ids"],
                 forward_inputs["attention_mask"]
             )
+            slot_offset = torch.tensor([forward_inputs["valid_slot_ids"][0] * batch_offset],
+                                        device = forward_inputs["position_ids"].device,
+                                        dtype = forward_inputs["position_ids"].dtype).unsqueeze(1)
         else:
+            bsz = forward_inputs["input_ids"].shape[0]
             forward_inputs["full_attention_mask"] = get_decode_masks(
                 forward_inputs["input_ids"],
                 forward_inputs["all_kv_len"]
             )
+            forward_inputs["seq_lens"] = torch.tensor( [x + y for x, y in zip(forward_inputs["all_q_len"], forward_inputs["all_kv_len"])], 
+                                                        dtype=torch.int, 
+                                                        device=forward_inputs["position_ids"].device)
+            slot_offset = torch.arange(0, bsz * batch_offset, batch_offset,
+                                        device = forward_inputs["position_ids"].device,
+                                        dtype = forward_inputs["position_ids"].dtype).unsqueeze(1)
+        forward_inputs["slot_mapping"] = forward_inputs["position_ids"] + slot_offset
         return forward_inputs
 
 
@@ -192,8 +206,8 @@ class GpuMpEngine(CoreMpEngine):
             self._input_queues.put(args, block=True)
 
         # wait for one subprocess send result back to main process
+        #for _ in range(self.world_size):
         output_dict = self._output_queues.get(block=True)
-
         return output_dict
 
 # ROCM_HIPGRAPH modify
@@ -240,22 +254,43 @@ class GpuMpEngineWithGraph(GpuMpEngine):
             logger.info(f"{local_rank}/{world_size} rank is ready")
 
             graph = torch.cuda.CUDAGraph()
-
+            s = torch.cuda.Stream()
             # model process loop
             while True:
                 (
                     forward_inputs,
                 ) = input_queue.get(block=True)
 
+                if 'replay' not in forward_inputs:
+                    forward_inputs["cache_batch_offset"] = model.cache_batch_offset
+                    inputs_dict = self.build_inputs(forward_inputs)
                 # this is the capture phase of graph
                 if 'capture' in forward_inputs:
-                    graph.reset()   # reset cuda graph each time
-                    inputs_dict = self.build_inputs(forward_inputs)
+                    graph = torch.cuda.CUDAGraph()   # reset cuda graph each time
+
                     # model.forward(inputs_dict)
+                    _NUM_WARMUP_ITERS=2
+                    with torch.cuda.stream(s):
+                        for _ in range(_NUM_WARMUP_ITERS):
+                            logits = model.forward(inputs_dict)
+
+                    torch.cuda.current_stream().wait_stream(s)
                     torch.cuda.synchronize()
+                   # graph.enable_debug_mode()
                     with torch.cuda.graph(graph):
-                        model.forward(inputs_dict)
+                        logits = model.forward(inputs_dict)
+
                     torch.cuda.synchronize()
+                    #graph.debug_dump(f"/src/cuda_graph{str(local_rank)}.dot")
+                    output_dict = dict()
+                    #inputs_dict["input_ids"][0][0] = 128
+                    # graph.replay()
+                    # torch.cuda.synchronize()
+
+                    output_dict["duration_ms"] = 0
+                    # TP realization: rank0 send result back to main process
+                    if local_rank == 0:
+                        output_queue.put(output_dict)
                     continue
 
                 log = forward_inputs.get("log", False)
@@ -267,13 +302,13 @@ class GpuMpEngineWithGraph(GpuMpEngine):
                     workspace_dir.mkdir(exist_ok=True, parents=True)
                     forward_inputs["log_file"] = open(workspace_dir / "run.log", "w")
 
-
-                inputs_dict = self.build_inputs(forward_inputs)
                 start_time = time.perf_counter_ns()
 
-                # output_dict = model.forward(inputs_dict)
-                graph.replay()
-
+                if 'replay' in forward_inputs:
+                    with torch.cuda.stream(s):
+                        graph.replay()
+                else:
+                    output_dict = model.forward(inputs_dict)
                 torch.cuda.synchronize()
                 end_time = time.perf_counter_ns()
                 duration_ms = round((end_time - start_time) / 1e6, 3)

@@ -875,7 +875,7 @@ class MixtralSdpaAttention(MixtralAttention):
                 None,
                 1.0,
                 1.0,
-            ).contiguous()
+            )
 
         attn_output = attn_output.view(bsz, q_len, self.num_heads * self.head_dim)
         attn_output = self.o_proj(attn_output)
@@ -1234,31 +1234,24 @@ class MixtralModel(MixtralPreTrainedModel):
         **kwargs,
     ) -> Union[Tuple, MoeModelOutputWithPast]:
         residual = None
-        bsz = input_ids.shape[0]
-        is_context = kwargs.get("is_context")
-        valid_slot_ids = kwargs.get("valid_slot_ids")
-        batch_offset = kwargs.get("cache_batch_offset")
-        if is_context:
-            slot_offset = torch.tensor([valid_slot_ids[0] * batch_offset],
-                                        device = position_ids.device,
-                                        dtype = position_ids.dtype).unsqueeze(1)
-        else:
-            slot_offset = torch.arange(0, bsz * batch_offset, batch_offset,
-                                       device = position_ids.device,
-                                       dtype = position_ids.dtype).unsqueeze(1)
-        kwargs["slot_mapping"] = position_ids + slot_offset
+
         if kwargs.pop("override_hidden_states", False):
             random_seed = kwargs.pop("random_seed", None)
             layer_index = kwargs.pop("fixed_layer_index", -1)
             layer_index = layer_index % len(self.layers)
-
             # create random input ids on cpu and copy to device
+<<<<<<< HEAD
             if random_seed is not None:
                 # RuntimeError: Cannot call CUDAGeneratorImpl::set_current_seed during CUDA graph capture.
                 torch.manual_seed(random_seed)
             random_input_ids = torch.randint(10, self.vocab_size, input_ids.shape, dtype=torch.int64, device="cpu").to(input_ids.device)
 
             hidden_states = self.embed_tokens(random_input_ids)
+=======
+            #torch.manual_seed(random_seed)
+            #random_input_ids = torch.randint(10, self.vocab_size, input_ids.shape, dtype=torch.int64, device="cpu").to(input_ids.device)
+            hidden_states = self.embed_tokens(input_ids)
+>>>>>>> 4494d72 (Add further hipgraph support)
             
             for _ in self.layers:
                 layer_outputs, residual = self.layers[layer_index](
@@ -1271,7 +1264,7 @@ class MixtralModel(MixtralPreTrainedModel):
                     output_router_logits=False,
                     use_cache=False,
                     **kwargs,
-                )
+            )
         else:
             hidden_states = self.embed_tokens(input_ids)
             for decoder_layer in self.layers:
@@ -1289,9 +1282,8 @@ class MixtralModel(MixtralPreTrainedModel):
 
         hidden_states, _ = self.norm(hidden_states, residual)
 
-        return MoeModelOutputWithPast(
-            last_hidden_state=hidden_states
-        )
+        return  hidden_states
+
 
 
 class MixtralForCausalLM(MixtralPreTrainedModel):
@@ -1387,8 +1379,11 @@ class MixtralForCausalLM(MixtralPreTrainedModel):
 
         # print(f'{os.environ.get("LOCAL_RANK", "0")} {outputs=}')
         hidden_states = outputs[0]
+      
         logits = self.lm_head(hidden_states)
         logits = logits.float()
+        # if(os.environ.get("LOCAL_RANK") == "0"):
+        #     print(f'>>>logits2 {logits.shape}, {logits} {logits.data_ptr()}')
         # print(f'{os.environ.get("LOCAL_RANK", "0")}:{hidden_states.shape=}')
         # print(f'{os.environ.get("LOCAL_RANK", "0")}:{hidden_states=}')
         # print(f'{os.environ.get("LOCAL_RANK", "0")}:{logits.shape=}')

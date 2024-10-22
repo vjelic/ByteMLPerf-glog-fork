@@ -213,6 +213,7 @@ class GPUMixtral(nn.Module):
         while max_num_blocks * self.block_size < max_seq_len * max_batch_size:
             max_num_blocks += 4096
         self.max_num_blocks_per_seq = (max_seq_len + self.block_size - 1) // self.block_size
+        self.cache_batch_offset = self.block_size * self.max_num_blocks_per_seq
         block_tables_lst: List[List[int]] = []
         for batch_idx in range(max_batch_size):
             block_start = self.max_num_blocks_per_seq * batch_idx
@@ -231,17 +232,14 @@ class GPUMixtral(nn.Module):
         return block_tables, past_key_values
 
     def forward(self, inputs : Dict[str, torch.Tensor]):
-        inputs["cache_batch_offset"] = self.block_size * self.max_num_blocks_per_seq
+
         model_outputs = self.transformer_model.forward(
             **inputs,
             past_key_values=(self.block_tables, self.kv_cache)
         )
 
+
         # context: [1, seq_len] --> [1, seq_len, vocab_size] or [1, 1, vocab_size]
         # decode: [max_batch_size, 1]
-        logits = model_outputs.logits
 
-        output_dict = {
-            "logits": logits
-        }
-        return output_dict
+        return model_outputs.logits

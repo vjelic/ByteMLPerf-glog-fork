@@ -131,18 +131,11 @@ def perf_engine(xpu_config, workspace):
     input_template = update_template("context", 1, 1024)
     is_graph = int(os.environ.get("ENABLE_GRAPH", "0"))
 
-    if is_graph:
-        #ROCM_HIPGRAPH modify
-        input_template['capture'] = 1
-        engine.mp_forward(input_template)
-        input_template.pop('capture')
-
     start_time = time.perf_counter_ns()
     for _ in range(num_warm_iter):
         engine.mp_forward(input_template)
     duration_s = round((time.perf_counter_ns() - start_time) / 1e9, 3)
     logger.info(f"warmup cost: {duration_s}s")
-
 
     def results_to_csv(file_path, results):
         batch_size_set = sorted(results.keys())
@@ -167,6 +160,8 @@ def perf_engine(xpu_config, workspace):
 
     log_results = []
     if xpu_config["perf_config"]["perf_context"]:
+        print(f'>>> Beginning Context', flush=True)
+
         batch_size_list = [1]
         seq_len_list = xpu_config["perf_config"]["seq_len_list"]
 
@@ -187,7 +182,12 @@ def perf_engine(xpu_config, workspace):
                 test_iter = 0
                 duration_ms = 0.
                 while test_iter < total_test_iter:
-                    result = engine.mp_forward(input_template)
+                    if is_graph:
+                        input_template['replay'] = 1
+                        result = engine.mp_forward(input_template)
+                        input_template.pop('replay')
+                    else:
+                       result = engine.mp_forward(input_template)
                     if start_iters > 0:
                         start_iters -= 1
                         continue
@@ -203,10 +203,11 @@ def perf_engine(xpu_config, workspace):
                         lines = workspace.joinpath("rank_0", "run.log").read_text().splitlines()
                         log_results[-1] += f", {lines[0]}"
                 print(log_results[-1])
+            print(f'>>> End of sequence length', flush=True)
         results_to_csv(workspace.joinpath("context_perf.csv"), context_results)
 
-
     if xpu_config["perf_config"]["perf_decode"]:
+        print(f'>>> Beginning Context', flush=True)
         batch_size_list = xpu_config["perf_config"]["batch_size_list"]
         seq_len_list = xpu_config["perf_config"]["seq_len_list"]
 
@@ -230,7 +231,12 @@ def perf_engine(xpu_config, workspace):
 
                 duration_ms = 0.
                 while test_iter < total_test_iter:
-                    result = engine.mp_forward(input_template)
+                    if is_graph:
+                        input_template['replay'] = 1
+                        result = engine.mp_forward(input_template)
+                        input_template.pop('replay')
+                    else:
+                       result = engine.mp_forward(input_template)
                     if start_iters > 0:
                         start_iters -= 1
                         continue
