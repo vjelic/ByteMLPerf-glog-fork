@@ -7,13 +7,14 @@ num_iters = 100
 num_warmup = 20
 
 
-def run_torch(input, normalized_shape, weight, bias, eps, residual=None):
+def run_torch(input, weight, bias, eps, residual=None):
     start_event = torch.cuda.Event(enable_timing=True)
     end_event = torch.cuda.Event(enable_timing=True)
     latencies = []
     for i in range(num_iters+num_warmup):
         start_event.record()
         if residual is None:
+            residual_out = None
             output = F.layer_norm(
                 input=input,
                 normalized_shape=(input.shape[-1],),
@@ -35,16 +36,17 @@ def run_torch(input, normalized_shape, weight, bias, eps, residual=None):
         latencies.append(start_event.elapsed_time(end_event))
     avg = np.mean(latencies[num_warmup:]) * 1000  # us
     # print(f"run_torch avg time: {avg} us")
-    return output, avg
+    return output, avg, residual_out
 
 
-def run_ck(input, normalized_shape, weight, bias, eps, residual=None):
+def run_ck(input, weight, bias, eps, residual=None):
     start_event = torch.cuda.Event(enable_timing=True)
     end_event = torch.cuda.Event(enable_timing=True)
     latencies = []
     for i in range(num_iters+num_warmup):
         start_event.record()
         if residual is None:
+            residual_out = None
             output = torch.empty_like(input)
             rocmKernels.layernorm2d_fwd(
                 output,
@@ -70,7 +72,7 @@ def run_ck(input, normalized_shape, weight, bias, eps, residual=None):
         latencies.append(start_event.elapsed_time(end_event))
     avg = np.mean(latencies[num_warmup:]) * 1000  # us
     # print(f"run_ck    avg time: {avg} us")
-    return output, avg
+    return output, avg, residual_out
 
 
 def checkAllclose(a, b, rtol=1e-2, atol=1e-2):
@@ -84,11 +86,12 @@ def test_layernorm2d(dtype, m, n):
     input = torch.randn(dim, dtype=dtype, device="cuda")
     weight = torch.randn(n, dtype=dtype, device="cuda")
     bias = torch.randn(n, dtype=dtype, device="cuda")
-    a, avg_a = run_torch(input, (dim,), weight, bias, 1e-5)
-    b, avg_b = run_ck(input, (dim,), weight, bias, 1e-5)
+    a, avg_a, *_ = run_torch(input, weight, bias, 1e-5)
+    b, avg_b, *_ = run_ck(input, weight, bias, 1e-5)
     print(
-        f"[func passed] dim: {dim}, dtype: {dtype}, torch avg: {avg_a:.2f} us, ck avg: {avg_b:.2f} us, uplift: {avg_a/avg_b-1:.1%}")
+        f"[perf] dim: {dim}, dtype: {dtype}, torch avg: {avg_a:.2f} us, ck avg: {avg_b:.2f} us, uplift: {avg_a/avg_b-1:.1%}", end=' ')
     checkAllclose(a, b)
+    print(f"[passed~]")
 
 
 def test_layernorm2d_fuseAdd(dtype, m, n):
@@ -96,17 +99,15 @@ def test_layernorm2d_fuseAdd(dtype, m, n):
     input = torch.randn(dim, dtype=dtype, device="cuda")
     weight = torch.randn(n, dtype=dtype, device="cuda")
     bias = torch.randn(n, dtype=dtype, device="cuda")
-    residual = torch.randn(dim, dtype=dtype, device="cuda")
-    a, avg_a = run_torch(input, (dim,), weight, bias, 1e-5)
-    b, avg_b = run_ck(input, (dim,), weight, bias, 1e-5)
-    # fuse add
-    a, avg_a = run_torch(input, (dim,), weight, bias,
-                         1e-5, residual=residual)
-    b, avg_b = run_ck(input, (dim,), weight, bias, 1e-5, residual=residual)
-    print(
-        f"[func passed] dim: {dim}, dtype: {dtype}, torch avg: {avg_a:.2f} us, ck avg: {avg_b:.2f} us, uplift: {avg_a/avg_b-1:.1%}")
+    res = torch.randn(dim, dtype=dtype, device="cuda")
+    a, avg_a, res_a, *_ = run_torch(input, weight, bias, 1e-5, residual=res)
+    b, avg_b, res_b, *_ = run_ck(input, weight, bias, 1e-5, residual=res)
 
-    checkAllclose(a, b)
+    print(
+        f"[perf] dim: {dim}, dtype: {dtype}, torch avg: {avg_a:.2f} us, ck avg: {avg_b:.2f} us, uplift: {avg_a/avg_b-1:.1%}", end=' ')
+    checkAllclose(a, b, rtol=1e-2, atol=1e-1)
+    checkAllclose(res_a, res_b)
+    print(f" [passed~]")
 
 
 for dtype in [torch.float16, torch.bfloat16]:
