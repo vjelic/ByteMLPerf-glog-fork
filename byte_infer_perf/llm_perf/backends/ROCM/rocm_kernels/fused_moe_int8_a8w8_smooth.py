@@ -526,8 +526,9 @@ def _triton_smooth_quantize_kernel(
     offsets = tl.arange(0, N)
     mask = offsets < n_elements
     input_ptrs = input_ptr + pid * stride_inputm + offsets
+    vector_ptrs = vector_ptr + offsets
     input_vals = tl.load(input_ptrs, mask=mask, other=1e-6)
-    vector_vals = tl.load(vector_ptrs, mask=mask, other=1e-6).to(tl.half)
+    vector_vals = tl.load(vector_ptrs, mask=mask, other=1e-6)
     input_vals = input_vals * vector_vals 
     abs_max_f = tl.reduce(input_vals, 0, _abs_max)
     smooth_per_token_scale = 127.0 / abs_max_f
@@ -573,6 +574,7 @@ def triton_smooth_quantize(out, input, scale, vector):
         out,
         input,
         scale,
+        vector,
         out.stride(0),
         out.stride(1),
         input.stride(0),
@@ -984,15 +986,15 @@ def get_config_dtype_str(dtype: torch.dtype,
     return None
 
 
-def fused_experts_int8_a8w8(hidden_states: torch.Tensor,
+def fused_experts_int8_a8w8_smooth(hidden_states: torch.Tensor,
                   w1: torch.Tensor,
                   w2: torch.Tensor,
                   topk_weights: torch.Tensor,
                   topk_ids: torch.Tensor,
                   w1_scale: torch.Tensor,
                   w2_scale: torch.Tensor,
-                  a1_scale: torch.Tensor,
-                  a2_scale: torch.Tensor,
+                  a1_scale_vector: torch.Tensor,
+                  a2_scale_vector: torch.Tensor,
                   inplace: bool = False,
                   override_config: Optional[Dict[str, Any]] = None,
                   use_fp8_w8a8: bool = False,
@@ -1029,7 +1031,8 @@ def fused_experts_int8_a8w8(hidden_states: torch.Tensor,
     hidden_states_scales = torch.empty(
         hidden_states.shape[0], dtype=torch.half, device=hidden_states.device
     )
-    triton_dynamic_quantize(hidden_states_quant, hidden_states, hidden_states_scales)
+    #triton_dynamic_quantize(hidden_states_quant, hidden_states, hidden_states_scales)
+    triton_smooth_quantize(hidden_states_quant, hidden_states, hidden_states_scales,a1_scale_vector)
 
     intermediate_cache1 = torch.zeros((M, topk_ids.shape[1], N),
                                       device=hidden_states.device,
@@ -1106,8 +1109,8 @@ def fused_experts_int8_a8w8(hidden_states: torch.Tensor,
         intermediate_cache2_scales = torch.empty(
             intermediate_cache2.shape[0], dtype=torch.half, device=hidden_states.device
         )
-        triton_dynamic_quantize(
-            intermediate_cache2_quant, intermediate_cache2, intermediate_cache2_scales
+        triton_smooth_quantize(
+            intermediate_cache2_quant, intermediate_cache2, intermediate_cache2_scales, a2_scale_vector
         )
 #        print("llm: cache2:", intermediate_cache2_quant)
 #        print("llm: cache2_sclae:", intermediate_cache2_scales)
@@ -1138,7 +1141,7 @@ def fused_experts_int8_a8w8(hidden_states: torch.Tensor,
     return torch.sum(intermediate_cache3.view(*intermediate_cache3.shape), dim=1)
 
 
-def fused_moe_int8_a8w8(
+def fused_moe_int8_a8w8_smooth(
     hidden_states: torch.Tensor,
     w1: torch.Tensor,
     w2: torch.Tensor,
@@ -1206,15 +1209,15 @@ def fused_moe_int8_a8w8(
         topk_weights, topk_ids = custom_routing_function(
             hidden_states, gating_output, topk, renormalize)
 #    print("moe topk_weights",topk_weights,"topk_ids",topk_ids)
-    return fused_experts_int8_a8w8(hidden_states,
+    return fused_experts_int8_a8w8_smooth(hidden_states,
                          w1,
                          w2,
-                         topk_weights,
+                        topk_weights,
                          topk_ids,
                          w1_scale=w1_scale,
                          w2_scale=w2_scale,
-                         a1_scale=a1_scale,
-                         a2_scale=a2_scale,
+                         a1_scale_vector=a1_scale,
+                         a2_scale_vector=a2_scale,
                          inplace=inplace,
                          override_config=override_config,
                          use_fp8_w8a8=use_fp8_w8a8,

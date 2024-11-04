@@ -14,7 +14,7 @@ sys.path.insert(0, f'{_path}/../')
 import rocmKernels as ops
 # print(ops.__file__)
 # exit()
-from rocm_kernels.fused_moe_int8_a8w8 import (fused_moe_int8_a8w8,
+from rocm_kernels.fused_moe_int8_a8w8_smooth import (fused_moe_int8_a8w8_smooth,
                                     get_config_file_name,
                                     scaled_int8_quant)
 
@@ -163,7 +163,7 @@ def union_of_list_of_dicts(l1, l2):
 def need_split_k(SIZE_M, SIZE_N, SIZE_K):
     return (SIZE_M < 64 or SIZE_N < 64) and SIZE_K > 1024
 
-def torch_moe(hidden_states, w1, w2, score, topk):
+def torch_moe_smooth(hidden_states, w1, w2, score, topk, a2_scales_vector):
     B, D = hidden_states.shape
     hidden_states = hidden_states.view(B, -1, D).repeat(1, topk, 1).reshape(-1, D)
     out = torch.zeros(
@@ -185,7 +185,9 @@ def torch_moe(hidden_states, w1, w2, score, topk):
             silu_out = torch.empty(
                 silu_output_shape, dtype=silu_input.dtype, device=silu_input.device
             )
+            a2_scales_vector = a2_scales_vector.half()
             ops.silu_and_mul(silu_out, silu_input)
+            silu_out = silu_out * a2_scales_vector
             out[mask] = silu_out @ (w2[i].transpose(0, 1))
     #out = out + 2.0
     return (
@@ -308,7 +310,7 @@ def run_timing(
         dtype=torch.float16,
     )
 
-    vector = torch.rand(hidden_states.shape[1], device="cuda", dtype=torch.float32)
+    a1_scales_vector = torch.rand(hidden_states.shape[1], device= hidden_states.device, dtype=torch.float32)
     
     w1 = torch.rand(
         (num_total_experts, 2 * shard_intermediate_size, d_model),
@@ -321,9 +323,9 @@ def run_timing(
         device=hidden_states.device,
         dtype=hidden_states.dtype,
     )/100
-    a2_scales = torch.rand((hidden_states.shape[1]),
+    a2_scales_vector = torch.rand((shard_intermediate_size),
             device = hidden_states.device,
-            dtype=hidden_states.dtype)
+            dtype=torch.float32)
     gating_output = F.softmax(
         torch.rand(
             # (num_calls, bs, num_total_experts), # THIS
@@ -335,7 +337,7 @@ def run_timing(
     )
 
     ###### Stuff from fused moe ######
-    #hidden_states_quant,hidden_states_scales = dynamic_quan_torch_impl(hidden_states)
+    hidden_states_quant,hidden_states_scales = smooth_quan_torch_impl(hidden_states, a1_scales_vector)
     w1_quant, w1_scales = dynamic_quan_torch_impl(w1)
     w2_quant, w2_scales = dynamic_quan_torch_impl(w2)
     assert (hidden_states.shape[0] == gating_output.shape[0]
@@ -352,15 +354,15 @@ def run_timing(
     end_event = torch.cuda.Event(enable_timing=True)
     start_event.record()
     #output = fused_moe_int8_a8w8(hidden_states_quant,
-    output = fused_moe_int8_a8w8(hidden_states,
+    output = fused_moe_int8_a8w8_smooth(hidden_states,
             w1_quant,
             w2_quant,
             gating_output,
             w1_scales,
             w2_scales,
             #hidden_states_scales,
-            None,
-            a2_scales,
+            a1_scales_vector,
+            a2_scales_vector,
             top_k,
             renormalize=False,
             inplace=False)
@@ -370,15 +372,16 @@ def run_timing(
 
     dur_ms = start_event.elapsed_time(end_event) / num_calls
     print("kernel dur ms:", dur_ms)
-    #hidden_states_dequant = hidden_states_quant * hidden_states_scales[:, None]
+    hidden_states_dequant = hidden_states_quant * hidden_states_scales[:, None]
     w1_dequant = w1_quant * w1_scales[:, :, None]
     w2_dequant = w2_quant * w2_scales[:, :, None]
-    #out_ref = torch_moe(hidden_states_dequant,
-    out_ref = torch_moe(hidden_states,
+    out_ref = torch_moe_smooth(hidden_states_dequant,
+    #out_ref = torch_moe_smooth(hidden_states,
             w1_dequant,
             w2_dequant,
             gating_output,
             top_k,
+            a2_scales_vector
             )
     diff = ~torch.isclose(
             output.half().cpu(), out_ref.half().cpu(), rtol=1, atol=1
