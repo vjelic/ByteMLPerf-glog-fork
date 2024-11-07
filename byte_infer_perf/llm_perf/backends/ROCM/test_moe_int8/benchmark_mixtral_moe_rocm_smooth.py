@@ -32,11 +32,12 @@ def main(args):
 #           8,
 #           16,
 #           24,
-#           32,
+           32,
 #           48,
 #           64,
 #           96,
-           128,
+
+#           128,
 #           256,
 #           512,
 #           1024,
@@ -52,11 +53,15 @@ def main(args):
 def get_full_tuning_space():
     configs = []
 
-    block_mn_range = [16, 32, 64, 128, 256]
-    block_k_range = [32, 64, 128, 256]
-    split_k_range = [1, 2, 4, 5, 6, 8, 10, 12, 16, 18, 24]
-    num_warps_range = [1, 2, 4, 8]
-    group_m_range = [1, 4, 8, 16, 32]
+    #block_mn_range = [16, 32, 64, 128, 256]
+    block_mn_range = [16]
+    #block_k_range = [32, 64, 128, 256]
+    block_k_range = [32]
+    #split_k_range = [1, 2, 4, 5, 6, 8, 10, 12, 16, 18, 24]
+    split_k_range = [2]
+    num_warps_range = [4]
+    #group_m_range = [1, 4, 8, 16, 32]
+    group_m_range = [1]
     # For now we see better perf with num_stages=0 for all gemm configs we care
     # But keep this explicit so that we do not forget we may need to set it to
     # other values in the future
@@ -163,7 +168,7 @@ def union_of_list_of_dicts(l1, l2):
 def need_split_k(SIZE_M, SIZE_N, SIZE_K):
     return (SIZE_M < 64 or SIZE_N < 64) and SIZE_K > 1024
 
-def torch_moe_smooth(hidden_states, w1, w2, score, topk, a2_scales_vector):
+def torch_moe_smooth(hidden_states, w1, w2, score, topk, a1_scales_vector, a2_scales_vector):
     B, D = hidden_states.shape
     hidden_states = hidden_states.view(B, -1, D).repeat(1, topk, 1).reshape(-1, D)
     out = torch.zeros(
@@ -176,18 +181,22 @@ def torch_moe_smooth(hidden_states, w1, w2, score, topk, a2_scales_vector):
     topk_weight, topk_ids = torch.topk(score, topk)
     topk_weight = topk_weight.view(-1)
     topk_ids = topk_ids.view(-1)
+    assert(a2_scales_vector.shape[0] == w1.shape[0])
+    assert(a1_scales_vector.shape[0] == w1.shape[0])
     for i in range(w1.shape[0]):
         mask = topk_ids == i
         if mask.sum():
+            print("a1_scale_vetor shape:", a1_scales_vector.shape)
+            print("hidden_states[mask] shape:", hidden_states[mask].shape)
+            hidden_states[mask] = hidden_states[mask] * a1_scales_vector[i].to(torch.float16)
             silu_input = hidden_states[mask] @ (w1[i].transpose(0, 1))
             d = silu_input.shape[-1] // 2
             silu_output_shape = silu_input.shape[:-1] + (d,)
             silu_out = torch.empty(
                 silu_output_shape, dtype=silu_input.dtype, device=silu_input.device
             )
-            a2_scales_vector = a2_scales_vector.half()
             ops.silu_and_mul(silu_out, silu_input)
-            silu_out = silu_out * a2_scales_vector
+            silu_out = silu_out * a2_scales_vector[i].to(torch.float16)
             out[mask] = silu_out @ (w2[i].transpose(0, 1))
     #out = out + 2.0
     return (
@@ -310,7 +319,9 @@ def run_timing(
         dtype=torch.float16,
     )
 
-    a1_scales_vector = torch.rand(hidden_states.shape[1], device= hidden_states.device, dtype=torch.float32)
+    #a1_scales_vector = torch.rand((num_total_experts, hidden_states.shape[1]), device= hidden_states.device, dtype=torch.float32)
+    a1_scales_vector = torch.ones((num_total_experts, hidden_states.shape[1]), device= hidden_states.device, dtype=torch.float32)
+    #print("a1_scales_vector", a1_scales_vector)
     
     w1 = torch.rand(
         (num_total_experts, 2 * shard_intermediate_size, d_model),
@@ -323,7 +334,8 @@ def run_timing(
         device=hidden_states.device,
         dtype=hidden_states.dtype,
     )/100
-    a2_scales_vector = torch.rand((shard_intermediate_size),
+    #a2_scales_vector = torch.rand((num_total_experts, shard_intermediate_size),
+    a2_scales_vector = torch.ones((num_total_experts, shard_intermediate_size),
             device = hidden_states.device,
             dtype=torch.float32)
     gating_output = F.softmax(
@@ -337,7 +349,8 @@ def run_timing(
     )
 
     ###### Stuff from fused moe ######
-    hidden_states_quant,hidden_states_scales = smooth_quan_torch_impl(hidden_states, a1_scales_vector)
+    #calc topk for refeerence
+
     w1_quant, w1_scales = dynamic_quan_torch_impl(w1)
     w2_quant, w2_scales = dynamic_quan_torch_impl(w2)
     assert (hidden_states.shape[0] == gating_output.shape[0]
@@ -372,22 +385,23 @@ def run_timing(
 
     dur_ms = start_event.elapsed_time(end_event) / num_calls
     print("kernel dur ms:", dur_ms)
-    hidden_states_dequant = hidden_states_quant * hidden_states_scales[:, None]
+    #hidden_states_dequant = hidden_states_quant * hidden_states_scales[:, None]
     w1_dequant = w1_quant * w1_scales[:, :, None]
     w2_dequant = w2_quant * w2_scales[:, :, None]
-    out_ref = torch_moe_smooth(hidden_states_dequant,
-    #out_ref = torch_moe_smooth(hidden_states,
+    #out_ref = torch_moe_smooth(hidden_states_dequant,
+    out_ref = torch_moe_smooth(hidden_states,
             w1_dequant,
             w2_dequant,
             gating_output,
             top_k,
+            a1_scales_vector,
             a2_scales_vector
             )
     diff = ~torch.isclose(
             output.half().cpu(), out_ref.half().cpu(), rtol=1, atol=1
         )
-    #print("output:",output)
-    #print("out_ref:",out_ref)
+    print("output:",output)
+    print("out_ref:",out_ref)
     assert(diff.sum() < 10)
     #print("diff sum :",diff.sum())
     return dur_ms

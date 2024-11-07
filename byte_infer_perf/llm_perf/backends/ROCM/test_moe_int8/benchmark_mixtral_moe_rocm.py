@@ -191,7 +191,7 @@ def torch_moe(hidden_states, w1, w2, score, topk):
     return (
         out.view(B, -1, w2.shape[1]) * topk_weight.view(B, -1, 1).to(out.dtype)
     ).sum(dim=1)
-def smooth_quan_torch_impl(input, vector):
+def smooth_quan_torch_impl(input, vector, expert_ids, e_stride):
     max_input = input * vector
     max_input = input.abs().max(-1, keepdim=True)[0]
     scale = max_input / 127.0

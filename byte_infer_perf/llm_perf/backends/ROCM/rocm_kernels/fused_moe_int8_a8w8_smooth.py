@@ -515,18 +515,23 @@ def _triton_smooth_quantize_kernel(
     input_ptr,
     scale_ptr,
     vector_ptr,
+    expert_ids_ptr,
     stride_outputm,
     stride_outputn,
     stride_inputm,
     stride_inputn,
+    stride_expert,
     n_elements,
     N: tl.constexpr,
+    M_BLOCK: tl.constexpr,
 ):
     pid = tl.program_id(axis=0)
+    block_idx = pid%M_BLOCK
+    expert = tl.load(expert_ids_ptr + block_idx)
     offsets = tl.arange(0, N)
     mask = offsets < n_elements
     input_ptrs = input_ptr + pid * stride_inputm + offsets
-    vector_ptrs = vector_ptr + offsets
+    vector_ptrs = vector_ptr + offsets + expert * stride_expert
     input_vals = tl.load(input_ptrs, mask=mask, other=1e-6)
     vector_vals = tl.load(vector_ptrs, mask=mask, other=1e-6)
     input_vals = input_vals * vector_vals 
@@ -549,6 +554,7 @@ def _triton_dynamic_quantize_kernel(
     stride_inputn,
     n_elements,
     N: tl.constexpr,
+    M: tl.constexpr,
 ):
     pid = tl.program_id(axis=0)
     offsets = tl.arange(0, N)
@@ -563,7 +569,7 @@ def _triton_dynamic_quantize_kernel(
     tl.store(output_ptrs, output_vals, mask=mask)
     tl.store(scale_ptr + pid, abs_max_f / 127.0)
 
-def triton_smooth_quantize(out, input, scale, vector):
+def triton_smooth_quantize(out, input, scale, vector, expert_ids, block_m):
     assert input.is_contiguous(), "input must be contiguous"
     num_tokens = input.size(0)
     hidden_size = input.size(1)
@@ -575,14 +581,17 @@ def triton_smooth_quantize(out, input, scale, vector):
         input,
         scale,
         vector,
+        expert_ids,
         out.stride(0),
         out.stride(1),
         input.stride(0),
         input.stride(1),
         input.size(1),
+        vector.stride(0),
     ]
     grid = (num_tokens, 1, 1)
-    const_kwargs = {"N": hidden_size_padded}
+    const_kwargs = {"N": hidden_size_padded,
+                    "M_BLOCK":  block_m}
     method_name = "smooth_quant_" + str(hidden_size_padded)
     if 0:
         smooth_quant = triton.autotune(configs=_smooth_quant_configs, key=['N'])(_triton_smooth_quantize_kernel)
@@ -719,7 +728,8 @@ def scaled_int8_quant(
 def invoke_fused_moe_int8_a8w8_kernel(A: torch.Tensor, B: torch.Tensor, C: torch.Tensor,
                             A_scale: torch.Tensor,
                             B_scale: torch.Tensor,
-                            topk_weights: torch.Tensor, topk_ids: torch.Tensor,
+                            topk_weights: torch.Tensor, 
+                            topk_ids: torch.Tensor,
                             sorted_token_ids: torch.Tensor,
                             expert_ids: torch.Tensor,
                             num_tokens_post_padded: torch.Tensor,
@@ -1032,7 +1042,7 @@ def fused_experts_int8_a8w8_smooth(hidden_states: torch.Tensor,
         hidden_states.shape[0], dtype=torch.half, device=hidden_states.device
     )
     #triton_dynamic_quantize(hidden_states_quant, hidden_states, hidden_states_scales)
-    triton_smooth_quantize(hidden_states_quant, hidden_states, hidden_states_scales,a1_scale_vector)
+    #triton_smooth_quantize(hidden_states_quant, hidden_states, hidden_states_scales,a1_scale_vector)
 
     intermediate_cache1 = torch.zeros((M, topk_ids.shape[1], N),
                                       device=hidden_states.device,
@@ -1080,6 +1090,7 @@ def fused_experts_int8_a8w8_smooth(hidden_states: torch.Tensor,
 
         sorted_token_ids, expert_ids, num_tokens_post_padded = (
             moe_align_block_size(curr_topk_ids, config['BLOCK_SIZE_M'], E))
+        triton_smooth_quantize(hidden_states_quant, hidden_states, hidden_states_scales,a1_scale_vector, expert_ids, config['BLOCK_SIZE_M'])
     #    print("llm : hidden_state:", curr_hidden_states)
     #    print("llm: w1:", w1)
     #    print("llm w1+scale", w1_scale)
@@ -1110,7 +1121,7 @@ def fused_experts_int8_a8w8_smooth(hidden_states: torch.Tensor,
             intermediate_cache2.shape[0], dtype=torch.half, device=hidden_states.device
         )
         triton_smooth_quantize(
-            intermediate_cache2_quant, intermediate_cache2, intermediate_cache2_scales, a2_scale_vector
+            intermediate_cache2_quant, intermediate_cache2, intermediate_cache2_scales, a2_scale_vector, expert_ids, config['BLOCK_SIZE_M']
         )
 #        print("llm: cache2:", intermediate_cache2_quant)
 #        print("llm: cache2_sclae:", intermediate_cache2_scales)
