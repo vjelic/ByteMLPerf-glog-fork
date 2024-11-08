@@ -143,7 +143,7 @@ if IS_ROCM:
 
     # Check, if ATen/CUDAGeneratorImpl.h is found, otherwise use ATen/cuda/CUDAGeneratorImpl.h
     # See https://github.com/pytorch/pytorch/pull/70650
-    generator_flag = []
+    generator_flag = [f'-DFMOE_HSACO="{this_dir}/hsa/fmoe.co"']
     torch_dir = torch.__path__[0]
     if os.path.exists(os.path.join(torch_dir, "include", "ATen", "CUDAGeneratorImpl.h")):
         generator_flag.append("-DOLD_GENERATOR_PATH")

@@ -147,7 +147,7 @@ void fmoe(torch::Tensor &out,                   // [token_cnt, dim]
     hipModule_t module;
     hipFunction_t kernel_func;
 
-    HIP_CALL(hipModuleLoad(&module, "/mnt/raid0/ljin1/dk/poc_kl/mi300/fused_moe_asm/fmoe.co"));
-    HIP_CALL(hipModuleGetFunction(&kernel_func, module, "kernel_func"));
+    HIP_CALL(hipModuleLoad(&module, FMOE_HSACO));
+    HIP_CALL(hipModuleGetFunction(&kernel_func, module, "fmoe_kernel_func"));
     HIP_CALL(hipModuleLaunchKernel(kernel_func, gdx, gdy, gdz, bdx, 1, 1, 0, 0, NULL, (void **)&config));
 }

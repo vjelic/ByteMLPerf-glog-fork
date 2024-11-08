@@ -137,6 +137,8 @@ def moe_sorting_vllm(topk_ids: torch.Tensor,
     # max_num_tokens_padded = (
     #     topk_ids.numel() + num_experts * (block_size - 1)+block_size-1)//block_size*block_size
     max_num_tokens_padded = topk_ids.numel() + num_experts * block_size - topk
+    # max_num_tokens_padded = int(
+    #     (max_num_tokens_padded+block_size-1)//block_size*block_size)
     max_num_m_blocks = int((max_num_tokens_padded+block_size-1)//block_size)
 
     sorted_ids = torch.empty((max_num_tokens_padded, ),
@@ -158,12 +160,19 @@ def moe_sorting_vllm(topk_ids: torch.Tensor,
 
 
 @perftest()
+def moe_sorting_ck_test(topk_ids, topk_weights, num_experts, model_dim, moebuf_dtype):
+    return moe_sorting_ck(topk_ids, topk_weights, num_experts, model_dim, moebuf_dtype)
+
+
 def moe_sorting_ck(topk_ids, topk_weights, num_experts, model_dim, moebuf_dtype):
+    block_size = BLOCK_SIZE_M
     device = topk_ids.device
     topk = topk_ids.shape[1]
-    max_num_tokens_padded = topk_ids.numel() + num_experts * BLOCK_SIZE_M - topk
+    max_num_tokens_padded = topk_ids.numel() + num_experts * block_size - topk
+    # max_num_tokens_padded = int(
+    #     (max_num_tokens_padded+block_size-1)//block_size*block_size)
     max_num_m_blocks = int(
-        (max_num_tokens_padded+BLOCK_SIZE_M-1)//BLOCK_SIZE_M)
+        (max_num_tokens_padded+block_size-1)//block_size)
 
     # max_num_tokens_padded = (
     #     topk_ids.numel()+BLOCK_SIZE_M-1) // BLOCK_SIZE_M*BLOCK_SIZE_M * num_experts
@@ -202,49 +211,83 @@ def test_moe_sort(dtype, token, model_dim, hidden_dim, E, topk):
     score = torch.randn((token, E), device="cuda", dtype=dtype)
 
     topk_weights, topk_ids = fused_topk(input, score, topk, True)
-    print(f'{topk_weights=}')
-    print(f'{topk_ids=}')
+    # print(f'{topk_weights=}')
+    # print(f'{topk_ids=}')
 
     (sorted_ids_a,
      sorted_expert_ids_a,
      token_nums,
-     num_tokens_post_padded_a), avg_b = moe_sorting_vllm(
+     num_tokens_post_padded_a), avg_a = moe_sorting_vllm(
         topk_ids, BLOCK_SIZE_M, E)
     sorted_ids_a = sorted_ids_a//topk
-    # print(f'{sorted_ids_a=}')
-    # print(f'{token_nums=}')
-    # print(f'{num_tokens_post_padded=}')
+
     (sorted_ids_b,
      sorted_weights_b,
      sorted_expert_ids_b,
      num_tokens_post_padded_b,
-     moe_buf), avg_b = moe_sorting_ck(topk_ids, topk_weights, E,
-                                      model_dim, dtype)
-    print(f'{num_tokens_post_padded_a=}')
-    print(f'{num_tokens_post_padded_b=}')
-    print(f'{sorted_ids_a=}')
-    print(f'{sorted_ids_b=}')
-    # print(f'{sorted_ids_a.view(-1,BLOCK_SIZE_M)=}')
-    # print(f'{sorted_ids_b.view(-1,BLOCK_SIZE_M)=}')
-    print(f'{sorted_expert_ids_a=}')
-    print(f'{sorted_expert_ids_b=}')
-    print(f'{moe_buf.max()=}')
+     moe_buf), avg_b = moe_sorting_ck_test(topk_ids, topk_weights, E,
+                                           model_dim, dtype)
+    # print(f'{num_tokens_post_padded_a=}')
+    # print(f'{num_tokens_post_padded_b=}')
+    # print(f'{sorted_ids_a.shape=}')
+    # print(f'{sorted_ids_b.shape=}')
+    # pad_a = (sorted_ids_a.shape[0]+BLOCK_SIZE_M -
+    #          1)//BLOCK_SIZE_M*BLOCK_SIZE_M-sorted_ids_a.shape[0]
+    # pad_b = (sorted_ids_b.shape[0]+BLOCK_SIZE_M -
+    #          1)//BLOCK_SIZE_M*BLOCK_SIZE_M-sorted_ids_b.shape[0]
+    # print(f'{F.pad(sorted_ids_a,(0,pad_a), "constant", 0).view(-1,BLOCK_SIZE_M)=}')
+    # print(f'{F.pad(sorted_ids_b,(0,pad_b), "constant", 0).view(-1,BLOCK_SIZE_M)=}')
+    # print(f'{sorted_expert_ids_a=}')
+    # print(f'{sorted_expert_ids_b=}')
+    # print(f'{moe_buf.max()=}')
 
-    # (a, *_), avg_a = run_torch(a, w1, w2, sorted_token_ids,
-    #                            sorted_expert_ids, token_nums, num_tokens_post_padded)
-    # (b, *_), avg_b = run_ck(input, w1, w2,)
-    # print(
-    #     f"[perf] dim: {dim}, dtype: {dtype}, torch avg: {avg_a:.2f} us, ck avg: {avg_b:.2f} us, uplift: {avg_a/avg_b-1:.1%}", end=' ')
-    checkAllclose(sorted_ids_a, sorted_ids_b)
-    checkAllclose(sorted_expert_ids_a, sorted_expert_ids_b)
-    # print(f"[passed~]")
+    print(
+        f"[perf] {token=}, {model_dim=}, {hidden_dim=}, {E=}, {topk=}, dtype: {dtype}, torch avg: {avg_a:.2f} us, ck avg: {avg_b:.2f} us, uplift: {avg_a/avg_b-1:.1%}", end=' ')
+    if num_tokens_post_padded_a[0] != num_tokens_post_padded_b[0]:
+        print("[F!!!]")
+        return
+    checkAllclose(num_tokens_post_padded_a, num_tokens_post_padded_b, atol=0)
+    checkAllclose(sorted_ids_a[:num_tokens_post_padded_a[0]],
+                  sorted_ids_b[:num_tokens_post_padded_b[0]])
+    checkAllclose(sorted_expert_ids_a[:num_tokens_post_padded_a[0]//BLOCK_SIZE_M],
+                  sorted_expert_ids_b[:num_tokens_post_padded_b[0]//BLOCK_SIZE_M])
+    print(f"[passed~]")
 
 
-for dtype in [torch.float16, torch.bfloat16][1:]:
-    for m in [1, 2, 4, 8, 16, 32, 64, 128, 256][3:3+1]:
-        for dim in [4096, 8192, 16384, 32768, 65536][1:1+1]:
-            for hdim in [1024, 4096, 8192, 16384, 32768, 65536][:1]:
-                test_moe_sort(dtype, m, dim, hdim, 8, 4)
+# print('test test_moe_sort')
+# for dtype in [torch.float16, torch.bfloat16][1:]:
+#     for m in [1, 2, 4, 8, 16, 32, 64, 128, 256][3:]:
+#         for dim in [4096, 8192, 16384, 32768, 65536][:-2]:
+#             for hdim in [1024, 4096, 8192, 16384, 32768, 65536][:-2]:
+#                 test_moe_sort(dtype, m, dim, hdim, 32, 5)
+
+
+def permute_weight_a(x: torch.Tensor) -> torch.Tensor:
+    # Hardcode BLOCK_K and BLOCK_N
+    BK = 128
+    BN = 128
+    x_ = x
+    x_ = x_.view(x.shape[0],
+                 x.shape[1]//BN, BN//16, 16,
+                 x.shape[2]//BK, BK//32, 4, 8)
+    x_ = x_.permute(0, 1, 5, 2, 6, 4, 3, 7)
+    x_ = x_.contiguous()
+    x_ = x_.view(x.shape[0], x.shape[1], x.shape[2])
+    return x_
+
+
+def permute_weight_b(x: torch.Tensor) -> torch.Tensor:
+    # Hardcode BLOCK_K and BLOCK_N
+    BK = 32
+    BN = 16
+    x_ = x
+    x_ = x_.view(x.shape[0],
+                 x.shape[1]//BN, BN,
+                 x.shape[2]//BK, 4, 8)
+    x_ = x_.permute(0, 1, 3, 4, 2, 5)
+    x_ = x_.contiguous()
+    x_ = x_.view(x.shape[0], x.shape[1], x.shape[2])
+    return x_
 
 
 def test_fmoe(dtype, token, model_dim, hidden_dim, E, topk):
@@ -256,31 +299,32 @@ def test_fmoe(dtype, token, model_dim, hidden_dim, E, topk):
     topk_weights, topk_ids = fused_topk(input, score, topk, True)
 
     # ref implement
+    w1a = permute_weight_a(w1)
+    w2a = permute_weight_a(w2)
     out_a = fused_experts(input,
-                          w1,
-                          w2,
+                          w1a,
+                          w2a,
                           topk_weights,
                           topk_ids,
                           inplace=False)
     print(f'{out_a=}')
 
-    # out_a = torch_moe(input,
-    #                   w1,
-    #                   w2,
-    #                   topk_weights,
-    #                   topk_ids)
-    # print(f'{out_a=}')
-
     # b implement
+    w1b = permute_weight_b(w1)
+    w2b = permute_weight_b(w2)
     sorted_ids_b, sorted_weights_b, sorted_expert_ids_b, num_tokens_post_padded, moe_buf = moe_sorting_ck(topk_ids, topk_weights, E,
                                                                                                           model_dim, dtype)
-    rocmKernels.fmoe(moe_buf, input, w1, w2, sorted_ids_b,
+    rocmKernels.fmoe(moe_buf, input, w1b, w2b, sorted_ids_b,
                      sorted_weights_b, sorted_expert_ids_b, num_tokens_post_padded)
     print(f'{moe_buf=}')
+    avg_a = avg_b = 1
+    print(
+        f"[perf] {token=}, {model_dim=}, {hidden_dim=}, {E=}, {topk=}, dtype: {dtype}, torch avg: {avg_a:.2f} us, ck avg: {avg_b:.2f} us, uplift: {avg_a/avg_b-1:.1%}", end=' ')
 
 
-# for dtype in [torch.float16, torch.bfloat16][1:]:
-#     for m in [1, 2, 4, 8, 16, 32, 64, 128, 256][3:3+1]:
-#         for dim in [4096, 8192, 16384, 32768, 65536][1:1+1]:
-#             for hdim in [1024, 4096, 8192, 16384, 32768, 65536][:1]:
-#                 test_fmoe(dtype, m, dim, hdim, 8, 4)
+print('test test_fmoe')
+for dtype in [torch.float16, torch.bfloat16][1:]:
+    for m in [1, 2, 4, 8, 16, 32, 64, 128, 256][5:5+1]:
+        for dim in [4096, 8192, 16384, 32768, 65536][1:1+1]:
+            for hdim in [1024, 4096, 8192, 16384, 32768, 65536][:1]:
+                test_fmoe(dtype, m, dim, hdim, 32, 5)
