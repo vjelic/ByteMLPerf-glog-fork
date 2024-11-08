@@ -1035,6 +1035,12 @@ def fused_experts_int8_a8w8_smooth(hidden_states: torch.Tensor,
     )
 
     config = get_config_func(M)
+    hidden_states_quant = torch.empty(
+        hidden_states.shape, dtype=torch.int8, device=hidden_states.device
+    )
+    hidden_states_scales = torch.empty(
+        hidden_states.shape[0], dtype=torch.half, device=hidden_states.device
+    )
     #triton_dynamic_quantize(hidden_states_quant, hidden_states, hidden_states_scales)
     #triton_smooth_quantize(hidden_states_quant, hidden_states, hidden_states_scales,a1_scale_vector)
 
@@ -1061,7 +1067,7 @@ def fused_experts_int8_a8w8_smooth(hidden_states: torch.Tensor,
         begin_chunk_idx, end_chunk_idx = (chunk * CHUNK_SIZE,
                                           min((chunk + 1) * CHUNK_SIZE,
                                               num_tokens))
-        curr_hidden_states = hidden_states[begin_chunk_idx:end_chunk_idx]
+        curr_hidden_states = hidden_states_quant[begin_chunk_idx:end_chunk_idx]
         tokens_in_chunk, _ = curr_hidden_states.shape
 
         if tokens_in_chunk == 0:
@@ -1084,13 +1090,7 @@ def fused_experts_int8_a8w8_smooth(hidden_states: torch.Tensor,
 
         sorted_token_ids, expert_ids, num_tokens_post_padded = (
             moe_align_block_size(curr_topk_ids, config['BLOCK_SIZE_M'], E))
-        curr_hidden_states_quant = torch.empty(
-            curr_hidden_states.shape, dtype=torch.int8, device=hidden_states.device
-        )
-        curr_hidden_states_scales = torch.empty(
-            curr_hidden_states.shape[0], dtype=torch.half, device=hidden_states.device
-        )
-        triton_smooth_quantize(curr_hidden_states_quant, curr_hidden_states, curr_hidden_states_scales,a1_scale_vector, expert_ids, config['BLOCK_SIZE_M'])
+        triton_smooth_quantize(curr_hidden_states_quant, curr_hidden_states, hidden_states_scales,a1_scale_vector, expert_ids, config['BLOCK_SIZE_M'])
     #    print("llm : hidden_state:", curr_hidden_states)
     #    print("llm: w1:", w1)
     #    print("llm w1+scale", w1_scale)
@@ -1098,7 +1098,7 @@ def fused_experts_int8_a8w8_smooth(hidden_states: torch.Tensor,
                                 w1,
                                 intermediate_cache1,
                                 #a1_scale,
-                                curr_hidden_states_scales,
+                                hidden_states_scales,
                                 w1_scale,
                                 curr_topk_weights,
                                 curr_topk_ids,
