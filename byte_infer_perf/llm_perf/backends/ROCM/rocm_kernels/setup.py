@@ -173,6 +173,7 @@ if IS_ROCM:
             f"{blob_dir}",
             f"{this_dir}/csrc/impl/",
             f"{ck_dir}/example/ck_tile/12_smoothquant/instances/",
+            f"{ck_dir}/example/ck_tile/13_moe_sorting/",
         ])
 
     extra_compile_args = {
@@ -201,6 +202,7 @@ if IS_ROCM:
         f"{ck_dir}/library/include",
         f"{ck_dir}/example/ck_tile/02_layernorm2d",
         f"{ck_dir}/example/ck_tile/12_smoothquant",
+        f"{ck_dir}/example/ck_tile/13_moe_sorting",
     ]
 
     ext_modules.append(
@@ -214,10 +216,6 @@ if IS_ROCM:
 
     # ########## gradlib for tuned GEMM start here
     renamed_sources = rename_cpp_to_cu([f"{this_dir}/gradlib/csrc"])
-    gpus = ['gfx90a', 'gfx940', 'gfx941', 'gfx942']
-    extra_args = ["--offload-arch=" + g for g in gpus]
-    extra_args.append("-mllvm")
-    extra_args.append("--amdgpu-kernarg-preload-count=16")
     include_dirs = []
     ext_modules.append(
         CUDAExtension(
@@ -237,7 +235,7 @@ if IS_ROCM:
                     '-U__CUDA_NO_HALF_CONVERSIONS__',
                     "-ftemplate-depth=1024",
                     '-DLEGACY_HIPBLAS_DIRECT=ON',
-                ] + extra_args
+                ] + cc_flag
             }))
     ext_modules.append(
         CUDAExtension(
@@ -257,7 +255,7 @@ if IS_ROCM:
                     '-U__CUDA_NO_HALF_CONVERSIONS__',
                     "-ftemplate-depth=1024",
                     '-DLEGACY_HIPBLAS_DIRECT=ON',
-                ] + extra_args
+                ] + cc_flag
             }))
     # ########## gradlib for tuned GEMM end here
 else:
