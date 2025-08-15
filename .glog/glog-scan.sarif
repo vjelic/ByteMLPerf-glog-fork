@@ -1,0 +1,277 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Glog.AI",
+          "organization": "Glog.AI",
+          "fullName": "Glog, Making software more secure",
+          "version": "1.0.0",
+          "semanticVersion": "1.0.0",
+          "informationUri": "https://www.glog.ai",
+          "rules": [
+            {
+              "id": "glog-ce2115cb-d149-4bdb-801b-3cfd06e008ae",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\n\"Exec Usage Detected\" is a vulnerability in Python that arises when the `exec()` function is used. The `exec()` function is a built-in Python function that executes the Python code contained within a string or object. This function can be a security risk because it allows for the execution of arbitrary Python code, which can lead to code injection attacks if the input is not properly sanitized.\n\nIn the provided code snippet, the `exec()` function is used to execute the contents of a file specified by `activate_file`. If an attacker can control the contents of `activate_file`, they can execute arbitrary Python code with the same privileges as the Python process.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, avoid using the `exec()` function whenever possible. If you must use `exec()`, ensure that the input is properly sanitized and that the function is not used to execute user-supplied input. \n\n## Source Code Fix Recommendation\n\nInstead of using `exec()` to execute the contents of a file, consider using a safer alternative such as importing the file as a module. Here's an example of how you can do this:\n\n```python\nimport importlib.util\n\ndef import_from_file(module_name, file_path):\n    spec = importlib.util.spec_from_file_location(module_name, file_path)\n    module = importlib.util.module_from_spec(spec)\n    spec.loader.exec_module(module)\n    return module\n\nactivate_module = import_from_file(\"activate_module\", activate_file)\n```\n\nIn this code, `import_from_file()` imports a Python file as a module and returns the module object. This is a safer alternative to `exec()` because it does not execute the file's contents in the global scope.\n\n## Library Dependencies\n\nThe provided code snippet does not require any external library dependencies to execute properly.\n\n## OWASP Resources\n\n- [OWASP Code Review Guide - Code Injection](https://owasp.org/www-project-code-review-guide/#review-code-for-code-injection-issues)\n\n## Common Weakness Enumeration (CWE)\n\n- [CWE-94: Improper Control of Generation of Code ('Code Injection')](https://cwe.mitre.org/data/definitions/94.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B102"
+                ]
+              }
+            },
+            {
+              "id": "glog-a4a7f256-062d-4791-809b-80166d13e5ea",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nUntrusted Data Deserialization Vulnerability in Pickle Modules is a critical security vulnerability in Python programming language. The vulnerability occurs when an application deserializes data from an untrusted source without proper validation. The `pickle` module in Python is used for serializing and deserializing Python object structures. However, it is not safe to deserialize data that comes from an untrusted source as it may lead to arbitrary code execution.\n\nIn the given code example, `entry = pickle.load(f, encoding='latin1')`, the application is loading a pickled object from a file `f` without validating the source or content of the file. If the file contains malicious data, it could lead to arbitrary code execution.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to avoid using `pickle` to deserialize untrusted data. If it is necessary to use `pickle`, ensure that the data is coming from a trusted source and is properly validated before deserialization.\n\n## Source Code Fix Recommendation\n\nInstead of using `pickle`, consider using safer alternatives for serialization/deserialization such as `json` or `yaml`. Here is an example of how to use `json`:\n\n```python\nimport json\n\n# Load JSON data from a file\nwith open('data.json', 'r') as f:\n    entry = json.load(f)\n```\n\n## Library Dependencies\n\nThe given code example requires the `pickle` module which is a built-in module in Python and does not require any additional installation.\n\n## References\n\n- [OWASP Deserialization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html)\n- [CWE-502: Deserialization of Untrusted Data](https://cwe.mitre.org/data/definitions/502.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B301"
+                ]
+              }
+            },
+            {
+              "id": "glog-619ab7e4-028a-4bac-a623-4a4894709304",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nUntrusted Data Deserialization Vulnerability in Pickle and Related Modules is a security vulnerability in Python programming language. The vulnerability occurs when an application deserializes data from an untrusted source without proper validation. This can lead to arbitrary code execution, denial of service, or other security breaches.\n\nThe `pickle` module in Python is used for serializing and deserializing Python object structures. However, it is not safe to deserialize data that comes from an untrusted or unauthenticated source. The `pickle.load()` function can execute arbitrary Python code, which can be a serious security risk if the data is not properly validated.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, you should avoid using `pickle` or similar modules to deserialize data from untrusted sources. Instead, use safer alternatives like `json` or `yaml` for data serialization and deserialization. These modules do not execute arbitrary code during deserialization.\n\nIf you must use `pickle`, ensure that the data is coming from a trusted and authenticated source. You can also use digital signatures or checksums to verify the integrity of the data before deserialization.\n\n## Source Code Fix Recommendation\n\nReplace the `pickle.load()` function with a safer alternative. For example, you can use the `json` module for data deserialization:\n\n```python\nimport json\n\nwith open(cache_file, 'r') as f:\n    eval_features = json.load(f)\n```\n\n## Library Dependencies\n\nThe code example requires the `pickle` module, which is included in the standard Python library. If you follow the source code fix recommendation, you will also need the `json` module, which is also included in the standard Python library.\n\n## References\n\n- [OWASP Python Security - Deserialization](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html#python)\n- [CWE-502: Deserialization of Untrusted Data](https://cwe.mitre.org/data/definitions/502.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B301"
+                ]
+              }
+            },
+            {
+              "id": "glog-b5e9ec34-8155-46d2-9e36-64aef64fc9d7",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nThe `shell=True` subprocess call security vulnerability in Python occurs when a subprocess call with `shell=True` is used. This allows shell injection, a form of input validation vulnerability where an attacker can execute arbitrary commands on the host's shell. This can lead to serious security issues such as unauthorized access, data leakage, data corruption, or even system shutdown.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, avoid using `shell=True` in subprocess calls whenever possible. If you must use it, ensure that the command string is not constructed from external input or user-controlled data. Always validate and sanitize input data to prevent shell injection attacks.\n\n## Source Code Fix Recommendation\n\nInstead of using `shell=True`, you can pass the command and its arguments as a list. Here's how you can modify the given code:\n\n```python\nimport subprocess\n\ncommand = [\"command\", \"arg1\", \"arg2\"]\ncpu_name = subprocess.check_output(command)\n```\n\n## Library Dependencies\n\nThe code example requires the `subprocess` module, which is part of the Python Standard Library. No additional library dependencies are required.\n\n## OWASP and CWE Links\n\n- [OWASP Command Injection](https://owasp.org/www-community/attacks/Command_Injection)\n- [CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')](https://cwe.mitre.org/data/definitions/78.html)\n\nPlease note that the links provided are active and accessible to anonymous users at the time of writing this report."
+              },
+              "properties": {
+                "tags": [
+                  "B602"
+                ]
+              }
+            },
+            {
+              "id": "glog-71e61de7-92b6-477a-ada0-0e901cbfbcfe",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\n\"Exec Usage Detected\" is a vulnerability in Python that arises when the `exec()` function is used. The `exec()` function is a built-in Python function that executes the Python code contained within a string or object. This function can be a security risk because it allows for the execution of arbitrary Python code, which can lead to code injection attacks if the input is not properly sanitized.\n\nIn the provided code snippet, the `exec()` function is used to execute the contents of a file specified by `activate_file`. If an attacker can control the contents of `activate_file`, they can execute arbitrary Python code with the same privileges as the Python process.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, avoid using the `exec()` function whenever possible. If you must use `exec()`, ensure that the input is properly sanitized and that the function is not used to execute user-supplied input. \n\n## Source Code Fix Recommendation\n\nInstead of using `exec()` to execute the contents of a file, consider using a safer alternative such as importing the file as a module. Here's an example of how you can do this:\n\n```python\nimport importlib.util\n\ndef import_from_file(module_name, file_path):\n    spec = importlib.util.spec_from_file_location(module_name, file_path)\n    module = importlib.util.module_from_spec(spec)\n    spec.loader.exec_module(module)\n    return module\n\nactivate_module = import_from_file(\"activate_module\", activate_file)\n```\n\nIn this code, `import_from_file()` imports a Python file as a module and returns the module object. This is a safer alternative to `exec()` because it does not execute the file's contents in the global scope.\n\n## Library Dependencies\n\nThe provided code snippet does not require any external library dependencies to execute properly.\n\n## OWASP Resources\n\n- [OWASP Code Review Guide - Code Injection](https://owasp.org/www-project-code-review-guide/#review-code-for-code-injection-issues)\n\n## Common Weakness Enumeration (CWE)\n\n- [CWE-94: Improper Control of Generation of Code ('Code Injection')](https://cwe.mitre.org/data/definitions/94.html)"
+              },
+              "properties": {
+                "tags": [
+                  "B102"
+                ]
+              }
+            }
+          ],
+          "language": "en-US",
+          "contents": [
+            "localizedData",
+            "nonLocalizedData"
+          ],
+          "isComprehensive": false
+        }
+      },
+      "language": "en-US",
+      "results": [
+        {
+          "ruleId": "glog-ce2115cb-d149-4bdb-801b-3cfd06e008ae",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Exec Usage Detected"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/core/perf_engine.py"
+                },
+                "region": {
+                  "startLine": 385,
+                  "startColumn": 17,
+                  "endLine": 385,
+                  "endColumn": 78,
+                  "snippet": {
+                    "text": "                exec(open(activate_file).read(), {'__file__': activate_file})\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 384,
+                  "endLine": 386,
+                  "snippet": {
+                    "text": "            else:\n                exec(open(activate_file).read(), {'__file__': activate_file})\n                '''\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-a4a7f256-062d-4791-809b-80166d13e5ea",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Untrusted Data Deserialization Vulnerability in Pickle Modules"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/datasets/open_cifar/data_loader.py"
+                },
+                "region": {
+                  "startLine": 67,
+                  "startColumn": 25,
+                  "endLine": 67,
+                  "endColumn": 58,
+                  "snippet": {
+                    "text": "                entry = pickle.load(f, encoding='latin1')\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 66,
+                  "endLine": 68,
+                  "snippet": {
+                    "text": "            with open(file_path, 'rb') as f:\n                entry = pickle.load(f, encoding='latin1')\n                self.data.append(entry['data'])\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-619ab7e4-028a-4bac-a623-4a4894709304",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "\"Untrusted Data Deserialization Vulnerability in Pickle and Related Modules\""
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/datasets/open_squad/data_loader.py"
+                },
+                "region": {
+                  "startLine": 57,
+                  "startColumn": 33,
+                  "endLine": 57,
+                  "endColumn": 56,
+                  "snippet": {
+                    "text": "                eval_features = pickle.load(cache_file)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 56,
+                  "endLine": 58,
+                  "snippet": {
+                    "text": "            with open(cache_path, 'rb') as cache_file:\n                eval_features = pickle.load(cache_file)\n            eval_examples = read_squad_examples(input_file=input_file,\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-b5e9ec34-8155-46d2-9e36-64aef64fc9d7",
+          "kind": "fail",
+          "level": "error",
+          "message": {
+            "text": "\"Shell=True Subprocess Call Security Vulnerability Detected\""
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/core/perf_engine.py"
+                },
+                "region": {
+                  "startLine": 289,
+                  "startColumn": 20,
+                  "endLine": 289,
+                  "endColumn": 64,
+                  "snippet": {
+                    "text": "        cpu_name = subprocess.check_output(command, shell=True)\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 288,
+                  "endLine": 290,
+                  "snippet": {
+                    "text": "        command = \"lscpu | grep 'Model name' | awk -F: '{print $2}'\"\n        cpu_name = subprocess.check_output(command, shell=True)\n        return cpu_name.decode().strip()\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "HIGH",
+            "issue_confidence": "HIGH"
+          }
+        },
+        {
+          "ruleId": "glog-71e61de7-92b6-477a-ada0-0e901cbfbcfe",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Exec Usage Detected"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/core/perf_engine.py"
+                },
+                "region": {
+                  "startLine": 375,
+                  "startColumn": 17,
+                  "endLine": 375,
+                  "endColumn": 78,
+                  "snippet": {
+                    "text": "                exec(open(activate_file).read(), {'__file__': activate_file})\n"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 374,
+                  "endLine": 376,
+                  "snippet": {
+                    "text": "                    virtualenv.create_environment(venv_dir)\n                exec(open(activate_file).read(), {'__file__': activate_file})\n                python_path = os.path.join(venv_dir, 'bin', 'python3')\n"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "issue_severity": "MEDIUM",
+            "issue_confidence": "HIGH"
+          }
+        }
+      ],
+      "newlineSequences": [
+        "\r\n",
+        "\n"
+      ]
+    }
+  ]
+}
