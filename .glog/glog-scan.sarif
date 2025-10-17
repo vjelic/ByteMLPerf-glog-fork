@@ -37,31 +37,6 @@
               }
             },
             {
-              "id": "a4f5871c-8305-3f15-8017-2949421ce1de",
-              "name": "trailofbits.python.automatic-memory-pinning.automatic-memory-pinning",
-              "shortDescription": {
-                "text": "Opengrep Finding: trailofbits.python.automatic-memory-pinning.automatic-memory-pinning"
-              },
-              "fullDescription": {
-                "text": "If possible, it is better to rely on automatic pinning in PyTorch to avoid undefined behavior and for efficiency"
-              },
-              "defaultConfiguration": {
-                "enabled": true,
-                "level": "warning"
-              },
-              "helpUri": "https://semgrep.dev/r/trailofbits.python.automatic-memory-pinning.automatic-memory-pinning",
-              "help": {
-                "text": "If possible, it is better to rely on automatic pinning in PyTorch to avoid undefined behavior and for efficiency\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "If possible, it is better to rely on automatic pinning in PyTorch to avoid undefined behavior and for efficiency\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [Semgrep Rule](https://semgrep.dev/r/trailofbits.python.automatic-memory-pinning.automatic-memory-pinning)\n - [https://pytorch.org/docs/stable/data.html#memory-pinning](https://pytorch.org/docs/stable/data.html#memory-pinning)\n"
-              },
-              "properties": {
-                "precision": "very-high",
-                "tags": [
-                  "trailofbits.python.automatic-memory-pinning.automatic-memory-pinning"
-                ]
-              }
-            },
-            {
               "id": "d82e8c21-714a-3f8c-bc6e-dc348bda05ae",
               "name": "trailofbits.python.automatic-memory-pinning.automatic-memory-pinning",
               "shortDescription": {
@@ -87,7 +62,7 @@
               }
             },
             {
-              "id": "3e45856d-2c35-3d1b-bb82-2038f71a4bd5",
+              "id": "a4f5871c-8305-3f15-8017-2949421ce1de",
               "name": "trailofbits.python.automatic-memory-pinning.automatic-memory-pinning",
               "shortDescription": {
                 "text": "Opengrep Finding: trailofbits.python.automatic-memory-pinning.automatic-memory-pinning"
@@ -112,7 +87,7 @@
               }
             },
             {
-              "id": "6b5a4e0d-a391-37d9-9d3b-e1acdccf0643",
+              "id": "3e45856d-2c35-3d1b-bb82-2038f71a4bd5",
               "name": "trailofbits.python.automatic-memory-pinning.automatic-memory-pinning",
               "shortDescription": {
                 "text": "Opengrep Finding: trailofbits.python.automatic-memory-pinning.automatic-memory-pinning"
@@ -187,6 +162,31 @@
               }
             },
             {
+              "id": "6b5a4e0d-a391-37d9-9d3b-e1acdccf0643",
+              "name": "trailofbits.python.automatic-memory-pinning.automatic-memory-pinning",
+              "shortDescription": {
+                "text": "Opengrep Finding: trailofbits.python.automatic-memory-pinning.automatic-memory-pinning"
+              },
+              "fullDescription": {
+                "text": "If possible, it is better to rely on automatic pinning in PyTorch to avoid undefined behavior and for efficiency"
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning"
+              },
+              "helpUri": "https://semgrep.dev/r/trailofbits.python.automatic-memory-pinning.automatic-memory-pinning",
+              "help": {
+                "text": "If possible, it is better to rely on automatic pinning in PyTorch to avoid undefined behavior and for efficiency\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "If possible, it is better to rely on automatic pinning in PyTorch to avoid undefined behavior and for efficiency\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [Semgrep Rule](https://semgrep.dev/r/trailofbits.python.automatic-memory-pinning.automatic-memory-pinning)\n - [https://pytorch.org/docs/stable/data.html#memory-pinning](https://pytorch.org/docs/stable/data.html#memory-pinning)\n"
+              },
+              "properties": {
+                "precision": "very-high",
+                "tags": [
+                  "trailofbits.python.automatic-memory-pinning.automatic-memory-pinning"
+                ]
+              }
+            },
+            {
               "id": "9272bbbd-593f-357b-b1d0-b2e40e8d7e6a",
               "name": "resources.rules.dangerous-subprocess-use",
               "shortDescription": {
@@ -207,31 +207,6 @@
                 "precision": "very-high",
                 "tags": [
                   "resources.rules.dangerous-subprocess-use"
-                ]
-              }
-            },
-            {
-              "id": "bf787164-24b1-36f1-a386-30a1e6b9c081",
-              "name": "python.lang.security.audit.non-literal-import.non-literal-import",
-              "shortDescription": {
-                "text": "Opengrep Finding: python.lang.security.audit.non-literal-import.non-literal-import"
-              },
-              "fullDescription": {
-                "text": "Untrusted user input in `importlib.import_module()` function allows an attacker to load arbitrary code. Avoid dynamic values in `importlib.import_module()` or use a whitelist to prevent running untrusted code."
-              },
-              "defaultConfiguration": {
-                "enabled": true,
-                "level": "warning"
-              },
-              "helpUri": "https://semgrep.dev/r/python.lang.security.audit.non-literal-import.non-literal-import",
-              "help": {
-                "text": "Untrusted user input in `importlib.import_module()` function allows an attacker to load arbitrary code. Avoid dynamic values in `importlib.import_module()` or use a whitelist to prevent running untrusted code.\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "Untrusted user input in `importlib.import_module()` function allows an attacker to load arbitrary code. Avoid dynamic values in `importlib.import_module()` or use a whitelist to prevent running untrusted code.\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [Semgrep Rule](https://semgrep.dev/r/python.lang.security.audit.non-literal-import.non-literal-import)\n - [https://owasp.org/Top10/A01_2021-Broken_Access_Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control)\n"
-              },
-              "properties": {
-                "precision": "very-high",
-                "tags": [
-                  "python.lang.security.audit.non-literal-import.non-literal-import"
                 ]
               }
             },
@@ -261,7 +236,7 @@
               }
             },
             {
-              "id": "6f849429-43d4-3954-970b-01a3d7f63d15",
+              "id": "bf787164-24b1-36f1-a386-30a1e6b9c081",
               "name": "python.lang.security.audit.non-literal-import.non-literal-import",
               "shortDescription": {
                 "text": "Opengrep Finding: python.lang.security.audit.non-literal-import.non-literal-import"
@@ -311,50 +286,27 @@
               }
             },
             {
-              "id": "83223cee-358b-3ff8-be4e-d72ccba9c551",
-              "name": "resources.rules.dangerous-subprocess-use",
+              "id": "6f849429-43d4-3954-970b-01a3d7f63d15",
+              "name": "python.lang.security.audit.non-literal-import.non-literal-import",
               "shortDescription": {
-                "text": "Opengrep Finding: resources.rules.dangerous-subprocess-use"
+                "text": "Opengrep Finding: python.lang.security.audit.non-literal-import.non-literal-import"
               },
               "fullDescription": {
-                "text": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n"
+                "text": "Untrusted user input in `importlib.import_module()` function allows an attacker to load arbitrary code. Avoid dynamic values in `importlib.import_module()` or use a whitelist to prevent running untrusted code."
               },
               "defaultConfiguration": {
                 "enabled": true,
                 "level": "warning"
               },
+              "helpUri": "https://semgrep.dev/r/python.lang.security.audit.non-literal-import.non-literal-import",
               "help": {
-                "text": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [https://stackoverflow.com/questions/3172470/actual-meaning-of-shell-true-in-subprocess](https://stackoverflow.com/questions/3172470/actual-meaning-of-shell-true-in-subprocess)\n - [https://docs.python.org/3/library/subprocess.html](https://docs.python.org/3/library/subprocess.html)\n - [https://docs.python.org/3/library/shlex.html](https://docs.python.org/3/library/shlex.html)\n"
+                "text": "Untrusted user input in `importlib.import_module()` function allows an attacker to load arbitrary code. Avoid dynamic values in `importlib.import_module()` or use a whitelist to prevent running untrusted code.\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "Untrusted user input in `importlib.import_module()` function allows an attacker to load arbitrary code. Avoid dynamic values in `importlib.import_module()` or use a whitelist to prevent running untrusted code.\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [Semgrep Rule](https://semgrep.dev/r/python.lang.security.audit.non-literal-import.non-literal-import)\n - [https://owasp.org/Top10/A01_2021-Broken_Access_Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control)\n"
               },
               "properties": {
                 "precision": "very-high",
                 "tags": [
-                  "resources.rules.dangerous-subprocess-use"
-                ]
-              }
-            },
-            {
-              "id": "92eb1d76-358d-3ccc-a35e-1d0e9342a766",
-              "name": "resources.rules.dangerous-subprocess-use",
-              "shortDescription": {
-                "text": "Opengrep Finding: resources.rules.dangerous-subprocess-use"
-              },
-              "fullDescription": {
-                "text": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n"
-              },
-              "defaultConfiguration": {
-                "enabled": true,
-                "level": "warning"
-              },
-              "help": {
-                "text": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [https://stackoverflow.com/questions/3172470/actual-meaning-of-shell-true-in-subprocess](https://stackoverflow.com/questions/3172470/actual-meaning-of-shell-true-in-subprocess)\n - [https://docs.python.org/3/library/subprocess.html](https://docs.python.org/3/library/subprocess.html)\n - [https://docs.python.org/3/library/shlex.html](https://docs.python.org/3/library/shlex.html)\n"
-              },
-              "properties": {
-                "precision": "very-high",
-                "tags": [
-                  "resources.rules.dangerous-subprocess-use"
+                  "python.lang.security.audit.non-literal-import.non-literal-import"
                 ]
               }
             },
@@ -408,32 +360,7 @@
               }
             },
             {
-              "id": "6ef3a639-ea49-3908-b19e-a261dba179c5",
-              "name": "python.lang.security.audit.exec-detected.exec-detected",
-              "shortDescription": {
-                "text": "Opengrep Finding: python.lang.security.audit.exec-detected.exec-detected"
-              },
-              "fullDescription": {
-                "text": "Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the program, this may be a code injection vulnerability. Ensure evaluated content is not definable by external sources."
-              },
-              "defaultConfiguration": {
-                "enabled": true,
-                "level": "warning"
-              },
-              "helpUri": "https://semgrep.dev/r/python.lang.security.audit.exec-detected.exec-detected",
-              "help": {
-                "text": "Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the program, this may be a code injection vulnerability. Ensure evaluated content is not definable by external sources.\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the program, this may be a code injection vulnerability. Ensure evaluated content is not definable by external sources.\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [Semgrep Rule](https://semgrep.dev/r/python.lang.security.audit.exec-detected.exec-detected)\n - [https://owasp.org/Top10/A03_2021-Injection](https://owasp.org/Top10/A03_2021-Injection)\n"
-              },
-              "properties": {
-                "precision": "very-high",
-                "tags": [
-                  "python.lang.security.audit.exec-detected.exec-detected"
-                ]
-              }
-            },
-            {
-              "id": "3015b883-3782-389d-873c-8e1f0c4ea60d",
+              "id": "83223cee-358b-3ff8-be4e-d72ccba9c551",
               "name": "resources.rules.dangerous-subprocess-use",
               "shortDescription": {
                 "text": "Opengrep Finding: resources.rules.dangerous-subprocess-use"
@@ -457,7 +384,7 @@
               }
             },
             {
-              "id": "9177bc35-ce2a-3d54-ab48-22d1bb0c8d4e",
+              "id": "92eb1d76-358d-3ccc-a35e-1d0e9342a766",
               "name": "resources.rules.dangerous-subprocess-use",
               "shortDescription": {
                 "text": "Opengrep Finding: resources.rules.dangerous-subprocess-use"
@@ -506,32 +433,80 @@
               }
             },
             {
-              "id": "ceb3a37a-80f7-36b7-b501-16473297d9f0",
-              "name": "trailofbits.python.pickles-in-numpy.pickles-in-numpy",
+              "id": "9177bc35-ce2a-3d54-ab48-22d1bb0c8d4e",
+              "name": "resources.rules.dangerous-subprocess-use",
               "shortDescription": {
-                "text": "Opengrep Finding: trailofbits.python.pickles-in-numpy.pickles-in-numpy"
+                "text": "Opengrep Finding: resources.rules.dangerous-subprocess-use"
               },
               "fullDescription": {
-                "text": "Functions reliant on pickle can result in arbitrary code execution.  Consider using fickling or switching to a safer serialization method"
+                "text": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n"
               },
               "defaultConfiguration": {
                 "enabled": true,
-                "level": "error"
+                "level": "warning"
               },
-              "helpUri": "https://semgrep.dev/r/trailofbits.python.pickles-in-numpy.pickles-in-numpy",
               "help": {
-                "text": "Functions reliant on pickle can result in arbitrary code execution.  Consider using fickling or switching to a safer serialization method\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "Functions reliant on pickle can result in arbitrary code execution.  Consider using fickling or switching to a safer serialization method\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [Semgrep Rule](https://semgrep.dev/r/trailofbits.python.pickles-in-numpy.pickles-in-numpy)\n - [https://blog.trailofbits.com/2021/03/15/never-a-dill-moment-exploiting-machine-learning-pickle-files/](https://blog.trailofbits.com/2021/03/15/never-a-dill-moment-exploiting-machine-learning-pickle-files/)\n"
+                "text": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [https://stackoverflow.com/questions/3172470/actual-meaning-of-shell-true-in-subprocess](https://stackoverflow.com/questions/3172470/actual-meaning-of-shell-true-in-subprocess)\n - [https://docs.python.org/3/library/subprocess.html](https://docs.python.org/3/library/subprocess.html)\n - [https://docs.python.org/3/library/shlex.html](https://docs.python.org/3/library/shlex.html)\n"
               },
               "properties": {
                 "precision": "very-high",
                 "tags": [
-                  "trailofbits.python.pickles-in-numpy.pickles-in-numpy"
+                  "resources.rules.dangerous-subprocess-use"
                 ]
               }
             },
             {
-              "id": "d48913e9-b035-3171-b812-2334033515aa",
+              "id": "3015b883-3782-389d-873c-8e1f0c4ea60d",
+              "name": "resources.rules.dangerous-subprocess-use",
+              "shortDescription": {
+                "text": "Opengrep Finding: resources.rules.dangerous-subprocess-use"
+              },
+              "fullDescription": {
+                "text": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n"
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning"
+              },
+              "help": {
+                "text": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "Detected subprocess function '$FUNC' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [https://stackoverflow.com/questions/3172470/actual-meaning-of-shell-true-in-subprocess](https://stackoverflow.com/questions/3172470/actual-meaning-of-shell-true-in-subprocess)\n - [https://docs.python.org/3/library/subprocess.html](https://docs.python.org/3/library/subprocess.html)\n - [https://docs.python.org/3/library/shlex.html](https://docs.python.org/3/library/shlex.html)\n"
+              },
+              "properties": {
+                "precision": "very-high",
+                "tags": [
+                  "resources.rules.dangerous-subprocess-use"
+                ]
+              }
+            },
+            {
+              "id": "6ef3a639-ea49-3908-b19e-a261dba179c5",
+              "name": "python.lang.security.audit.exec-detected.exec-detected",
+              "shortDescription": {
+                "text": "Opengrep Finding: python.lang.security.audit.exec-detected.exec-detected"
+              },
+              "fullDescription": {
+                "text": "Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the program, this may be a code injection vulnerability. Ensure evaluated content is not definable by external sources."
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning"
+              },
+              "helpUri": "https://semgrep.dev/r/python.lang.security.audit.exec-detected.exec-detected",
+              "help": {
+                "text": "Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the program, this may be a code injection vulnerability. Ensure evaluated content is not definable by external sources.\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the program, this may be a code injection vulnerability. Ensure evaluated content is not definable by external sources.\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [Semgrep Rule](https://semgrep.dev/r/python.lang.security.audit.exec-detected.exec-detected)\n - [https://owasp.org/Top10/A03_2021-Injection](https://owasp.org/Top10/A03_2021-Injection)\n"
+              },
+              "properties": {
+                "precision": "very-high",
+                "tags": [
+                  "python.lang.security.audit.exec-detected.exec-detected"
+                ]
+              }
+            },
+            {
+              "id": "ceb3a37a-80f7-36b7-b501-16473297d9f0",
               "name": "trailofbits.python.pickles-in-numpy.pickles-in-numpy",
               "shortDescription": {
                 "text": "Opengrep Finding: trailofbits.python.pickles-in-numpy.pickles-in-numpy"
@@ -580,7 +555,57 @@
               }
             },
             {
+              "id": "d48913e9-b035-3171-b812-2334033515aa",
+              "name": "trailofbits.python.pickles-in-numpy.pickles-in-numpy",
+              "shortDescription": {
+                "text": "Opengrep Finding: trailofbits.python.pickles-in-numpy.pickles-in-numpy"
+              },
+              "fullDescription": {
+                "text": "Functions reliant on pickle can result in arbitrary code execution.  Consider using fickling or switching to a safer serialization method"
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "error"
+              },
+              "helpUri": "https://semgrep.dev/r/trailofbits.python.pickles-in-numpy.pickles-in-numpy",
+              "help": {
+                "text": "Functions reliant on pickle can result in arbitrary code execution.  Consider using fickling or switching to a safer serialization method\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "Functions reliant on pickle can result in arbitrary code execution.  Consider using fickling or switching to a safer serialization method\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [Semgrep Rule](https://semgrep.dev/r/trailofbits.python.pickles-in-numpy.pickles-in-numpy)\n - [https://blog.trailofbits.com/2021/03/15/never-a-dill-moment-exploiting-machine-learning-pickle-files/](https://blog.trailofbits.com/2021/03/15/never-a-dill-moment-exploiting-machine-learning-pickle-files/)\n"
+              },
+              "properties": {
+                "precision": "very-high",
+                "tags": [
+                  "trailofbits.python.pickles-in-numpy.pickles-in-numpy"
+                ]
+              }
+            },
+            {
               "id": "39168c04-caf9-31f1-895e-2347af1e44c1",
+              "name": "python.lang.security.deserialization.pickle.avoid-pickle",
+              "shortDescription": {
+                "text": "Opengrep Finding: python.lang.security.deserialization.pickle.avoid-pickle"
+              },
+              "fullDescription": {
+                "text": "Avoid using `pickle`, which is known to lead to code execution vulnerabilities. When unpickling, the serialized data could be manipulated to run arbitrary code. Instead, consider serializing the relevant data as JSON or a similar text-based serialization format."
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning"
+              },
+              "helpUri": "https://semgrep.dev/r/python.lang.security.deserialization.pickle.avoid-pickle",
+              "help": {
+                "text": "Avoid using `pickle`, which is known to lead to code execution vulnerabilities. When unpickling, the serialized data could be manipulated to run arbitrary code. Instead, consider serializing the relevant data as JSON or a similar text-based serialization format.\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "Avoid using `pickle`, which is known to lead to code execution vulnerabilities. When unpickling, the serialized data could be manipulated to run arbitrary code. Instead, consider serializing the relevant data as JSON or a similar text-based serialization format.\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [Semgrep Rule](https://semgrep.dev/r/python.lang.security.deserialization.pickle.avoid-pickle)\n - [https://docs.python.org/3/library/pickle.html](https://docs.python.org/3/library/pickle.html)\n"
+              },
+              "properties": {
+                "precision": "very-high",
+                "tags": [
+                  "python.lang.security.deserialization.pickle.avoid-pickle"
+                ]
+              }
+            },
+            {
+              "id": "f8bbe1ac-cffd-311e-a5a1-27f1ad36735f",
               "name": "python.lang.security.deserialization.pickle.avoid-pickle",
               "shortDescription": {
                 "text": "Opengrep Finding: python.lang.security.deserialization.pickle.avoid-pickle"
@@ -629,27 +654,26 @@
               }
             },
             {
-              "id": "f8bbe1ac-cffd-311e-a5a1-27f1ad36735f",
-              "name": "python.lang.security.deserialization.pickle.avoid-pickle",
+              "id": "830cf747-2789-35f7-b920-e6409ff6ddf3",
+              "name": "resources.rules.dlint-catastrophic-redos",
               "shortDescription": {
-                "text": "Opengrep Finding: python.lang.security.deserialization.pickle.avoid-pickle"
+                "text": "Opengrep Finding: resources.rules.dlint-catastrophic-redos"
               },
               "fullDescription": {
-                "text": "Avoid using `pickle`, which is known to lead to code execution vulnerabilities. When unpickling, the serialized data could be manipulated to run arbitrary code. Instead, consider serializing the relevant data as JSON or a similar text-based serialization format."
+                "text": "Regex `$X` may be vulnerable to catastrophic backtracking, which may lead to denial of service attacks. (This rule only matches regex usage, not actual REDoS patterns. For full detection, use Semgrep Pro Engine.)"
               },
               "defaultConfiguration": {
                 "enabled": true,
-                "level": "warning"
+                "level": "error"
               },
-              "helpUri": "https://semgrep.dev/r/python.lang.security.deserialization.pickle.avoid-pickle",
               "help": {
-                "text": "Avoid using `pickle`, which is known to lead to code execution vulnerabilities. When unpickling, the serialized data could be manipulated to run arbitrary code. Instead, consider serializing the relevant data as JSON or a similar text-based serialization format.\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "Avoid using `pickle`, which is known to lead to code execution vulnerabilities. When unpickling, the serialized data could be manipulated to run arbitrary code. Instead, consider serializing the relevant data as JSON or a similar text-based serialization format.\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [Semgrep Rule](https://semgrep.dev/r/python.lang.security.deserialization.pickle.avoid-pickle)\n - [https://docs.python.org/3/library/pickle.html](https://docs.python.org/3/library/pickle.html)\n"
+                "text": "Regex `$X` may be vulnerable to catastrophic backtracking, which may lead to denial of service attacks. (This rule only matches regex usage, not actual REDoS patterns. For full detection, use Semgrep Pro Engine.)\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "Regex `$X` may be vulnerable to catastrophic backtracking, which may lead to denial of service attacks. (This rule only matches regex usage, not actual REDoS patterns. For full detection, use Semgrep Pro Engine.)\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [https://r2c.dev/blog/2020/finding-python-redos-bugs-at-scale-using-dlint-and-r2c/](https://r2c.dev/blog/2020/finding-python-redos-bugs-at-scale-using-dlint-and-r2c/)\n - [https://r2c.dev/blog/2020/improving-redos-detection-with-dlint-and-r2c/](https://r2c.dev/blog/2020/improving-redos-detection-with-dlint-and-r2c/)\n"
               },
               "properties": {
                 "precision": "very-high",
                 "tags": [
-                  "python.lang.security.deserialization.pickle.avoid-pickle"
+                  "resources.rules.dlint-catastrophic-redos"
                 ]
               }
             },
@@ -679,54 +703,6 @@
               }
             },
             {
-              "id": "830cf747-2789-35f7-b920-e6409ff6ddf3",
-              "name": "resources.rules.dlint-catastrophic-redos",
-              "shortDescription": {
-                "text": "Opengrep Finding: resources.rules.dlint-catastrophic-redos"
-              },
-              "fullDescription": {
-                "text": "Regex `$X` may be vulnerable to catastrophic backtracking, which may lead to denial of service attacks. (This rule only matches regex usage, not actual REDoS patterns. For full detection, use Semgrep Pro Engine.)"
-              },
-              "defaultConfiguration": {
-                "enabled": true,
-                "level": "error"
-              },
-              "help": {
-                "text": "Regex `$X` may be vulnerable to catastrophic backtracking, which may lead to denial of service attacks. (This rule only matches regex usage, not actual REDoS patterns. For full detection, use Semgrep Pro Engine.)\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "Regex `$X` may be vulnerable to catastrophic backtracking, which may lead to denial of service attacks. (This rule only matches regex usage, not actual REDoS patterns. For full detection, use Semgrep Pro Engine.)\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [https://r2c.dev/blog/2020/finding-python-redos-bugs-at-scale-using-dlint-and-r2c/](https://r2c.dev/blog/2020/finding-python-redos-bugs-at-scale-using-dlint-and-r2c/)\n - [https://r2c.dev/blog/2020/improving-redos-detection-with-dlint-and-r2c/](https://r2c.dev/blog/2020/improving-redos-detection-with-dlint-and-r2c/)\n"
-              },
-              "properties": {
-                "precision": "very-high",
-                "tags": [
-                  "resources.rules.dlint-catastrophic-redos"
-                ]
-              }
-            },
-            {
-              "id": "5a337fe1-a64b-34cc-96fc-28ecebcac551",
-              "name": "resources.rules.unchecked-subprocess-call",
-              "shortDescription": {
-                "text": "Opengrep Finding: resources.rules.unchecked-subprocess-call"
-              },
-              "fullDescription": {
-                "text": "This is not checking the return value of this subprocess call; if it fails no exception will be raised. Consider subprocess.check_call() instead"
-              },
-              "defaultConfiguration": {
-                "enabled": true,
-                "level": "warning"
-              },
-              "help": {
-                "text": "This is not checking the return value of this subprocess call; if it fails no exception will be raised. Consider subprocess.check_call() instead\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "This is not checking the return value of this subprocess call; if it fails no exception will be raised. Consider subprocess.check_call() instead\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>"
-              },
-              "properties": {
-                "precision": "very-high",
-                "tags": [
-                  "resources.rules.unchecked-subprocess-call"
-                ]
-              }
-            },
-            {
               "id": "4d60d0f0-27d5-36a1-9981-53f80ff16d04",
               "name": "python.lang.security.deserialization.pickle.avoid-pickle",
               "shortDescription": {
@@ -752,7 +728,7 @@
               }
             },
             {
-              "id": "16510536-2c6b-33bf-aba7-3349be86612b",
+              "id": "5a337fe1-a64b-34cc-96fc-28ecebcac551",
               "name": "resources.rules.unchecked-subprocess-call",
               "shortDescription": {
                 "text": "Opengrep Finding: resources.rules.unchecked-subprocess-call"
@@ -800,7 +776,7 @@
               }
             },
             {
-              "id": "05b18b8f-659e-3267-9830-f78356a2d177",
+              "id": "16510536-2c6b-33bf-aba7-3349be86612b",
               "name": "resources.rules.unchecked-subprocess-call",
               "shortDescription": {
                 "text": "Opengrep Finding: resources.rules.unchecked-subprocess-call"
@@ -844,6 +820,30 @@
                 "precision": "very-high",
                 "tags": [
                   "resources.rules.return-in-init"
+                ]
+              }
+            },
+            {
+              "id": "05b18b8f-659e-3267-9830-f78356a2d177",
+              "name": "resources.rules.unchecked-subprocess-call",
+              "shortDescription": {
+                "text": "Opengrep Finding: resources.rules.unchecked-subprocess-call"
+              },
+              "fullDescription": {
+                "text": "This is not checking the return value of this subprocess call; if it fails no exception will be raised. Consider subprocess.check_call() instead"
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning"
+              },
+              "help": {
+                "text": "This is not checking the return value of this subprocess call; if it fails no exception will be raised. Consider subprocess.check_call() instead\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "This is not checking the return value of this subprocess call; if it fails no exception will be raised. Consider subprocess.check_call() instead\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>"
+              },
+              "properties": {
+                "precision": "very-high",
+                "tags": [
+                  "resources.rules.unchecked-subprocess-call"
                 ]
               }
             },
@@ -897,30 +897,6 @@
               }
             },
             {
-              "id": "07377f65-ff95-3150-a805-45d8bc3b0fbc",
-              "name": "resources.rules.missing-ratelimit",
-              "shortDescription": {
-                "text": "Opengrep Finding: resources.rules.missing-ratelimit"
-              },
-              "fullDescription": {
-                "text": "Function '$FUNC' is missing a rate-limiting decorator.\nHigh volume traffic to this function could starve application\nresources. Consider adding rate limiting from a library such\nas 'django-ratelimit'.\n"
-              },
-              "defaultConfiguration": {
-                "enabled": true,
-                "level": "warning"
-              },
-              "help": {
-                "text": "Function '$FUNC' is missing a rate-limiting decorator.\nHigh volume traffic to this function could starve application\nresources. Consider adding rate limiting from a library such\nas 'django-ratelimit'.\n\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "Function '$FUNC' is missing a rate-limiting decorator.\nHigh volume traffic to this function could starve application\nresources. Consider adding rate limiting from a library such\nas 'django-ratelimit'.\n\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [https://github.com/jsocol/django-ratelimit/blob/main/docs/index.rst#quickstart](https://github.com/jsocol/django-ratelimit/blob/main/docs/index.rst#quickstart)\n"
-              },
-              "properties": {
-                "precision": "very-high",
-                "tags": [
-                  "resources.rules.missing-ratelimit"
-                ]
-              }
-            },
-            {
               "id": "9ed2a77a-a30c-3923-bf8f-0a68c4c3cd3e",
               "name": "resources.rules.dangerous-subprocess-use",
               "shortDescription": {
@@ -945,26 +921,26 @@
               }
             },
             {
-              "id": "31283317-16fc-3c5a-887a-98e8ea17f249",
-              "name": "resources.rules.use-sys-exit",
+              "id": "07377f65-ff95-3150-a805-45d8bc3b0fbc",
+              "name": "resources.rules.missing-ratelimit",
               "shortDescription": {
-                "text": "Opengrep Finding: resources.rules.use-sys-exit"
+                "text": "Opengrep Finding: resources.rules.missing-ratelimit"
               },
               "fullDescription": {
-                "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python"
+                "text": "Function '$FUNC' is missing a rate-limiting decorator.\nHigh volume traffic to this function could starve application\nresources. Consider adding rate limiting from a library such\nas 'django-ratelimit'.\n"
               },
               "defaultConfiguration": {
                 "enabled": true,
                 "level": "warning"
               },
               "help": {
-                "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>"
+                "text": "Function '$FUNC' is missing a rate-limiting decorator.\nHigh volume traffic to this function could starve application\nresources. Consider adding rate limiting from a library such\nas 'django-ratelimit'.\n\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "Function '$FUNC' is missing a rate-limiting decorator.\nHigh volume traffic to this function could starve application\nresources. Consider adding rate limiting from a library such\nas 'django-ratelimit'.\n\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>\n\n<b>References:</b>\n - [https://github.com/jsocol/django-ratelimit/blob/main/docs/index.rst#quickstart](https://github.com/jsocol/django-ratelimit/blob/main/docs/index.rst#quickstart)\n"
               },
               "properties": {
                 "precision": "very-high",
                 "tags": [
-                  "resources.rules.use-sys-exit"
+                  "resources.rules.missing-ratelimit"
                 ]
               }
             },
@@ -993,7 +969,31 @@
               }
             },
             {
-              "id": "65b04bdc-b170-3cfd-9be1-add3b25d530d",
+              "id": "31283317-16fc-3c5a-887a-98e8ea17f249",
+              "name": "resources.rules.use-sys-exit",
+              "shortDescription": {
+                "text": "Opengrep Finding: resources.rules.use-sys-exit"
+              },
+              "fullDescription": {
+                "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python"
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning"
+              },
+              "help": {
+                "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>"
+              },
+              "properties": {
+                "precision": "very-high",
+                "tags": [
+                  "resources.rules.use-sys-exit"
+                ]
+              }
+            },
+            {
+              "id": "8ac2f133-398c-399e-9978-43f350538df4",
               "name": "resources.rules.missing-ratelimit",
               "shortDescription": {
                 "text": "Opengrep Finding: resources.rules.missing-ratelimit"
@@ -1017,7 +1017,7 @@
               }
             },
             {
-              "id": "8ac2f133-398c-399e-9978-43f350538df4",
+              "id": "65b04bdc-b170-3cfd-9be1-add3b25d530d",
               "name": "resources.rules.missing-ratelimit",
               "shortDescription": {
                 "text": "Opengrep Finding: resources.rules.missing-ratelimit"
@@ -1089,30 +1089,6 @@
               }
             },
             {
-              "id": "9a15efc0-11ea-329b-b6cd-aca39d49768b",
-              "name": "resources.rules.insecure-subprocess-use",
-              "shortDescription": {
-                "text": "Opengrep Finding: resources.rules.insecure-subprocess-use"
-              },
-              "fullDescription": {
-                "text": "The Python 'subprocess' module called with 'shell=True' may allow for shell injection"
-              },
-              "defaultConfiguration": {
-                "enabled": true,
-                "level": "warning"
-              },
-              "help": {
-                "text": "The Python 'subprocess' module called with 'shell=True' may allow for shell injection\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "The Python 'subprocess' module called with 'shell=True' may allow for shell injection\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>"
-              },
-              "properties": {
-                "precision": "very-high",
-                "tags": [
-                  "resources.rules.insecure-subprocess-use"
-                ]
-              }
-            },
-            {
               "id": "842f1aff-d8fe-3938-b069-0204600d9a60",
               "name": "resources.rules.use-sys-exit",
               "shortDescription": {
@@ -1133,6 +1109,30 @@
                 "precision": "very-high",
                 "tags": [
                   "resources.rules.use-sys-exit"
+                ]
+              }
+            },
+            {
+              "id": "9a15efc0-11ea-329b-b6cd-aca39d49768b",
+              "name": "resources.rules.insecure-subprocess-use",
+              "shortDescription": {
+                "text": "Opengrep Finding: resources.rules.insecure-subprocess-use"
+              },
+              "fullDescription": {
+                "text": "The Python 'subprocess' module called with 'shell=True' may allow for shell injection"
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning"
+              },
+              "help": {
+                "text": "The Python 'subprocess' module called with 'shell=True' may allow for shell injection\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "The Python 'subprocess' module called with 'shell=True' may allow for shell injection\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>"
+              },
+              "properties": {
+                "precision": "very-high",
+                "tags": [
+                  "resources.rules.insecure-subprocess-use"
                 ]
               }
             },
@@ -1186,30 +1186,6 @@
               }
             },
             {
-              "id": "921fb1f1-48f4-3530-b64d-14d346995e8b",
-              "name": "resources.rules.use-sys-exit",
-              "shortDescription": {
-                "text": "Opengrep Finding: resources.rules.use-sys-exit"
-              },
-              "fullDescription": {
-                "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python"
-              },
-              "defaultConfiguration": {
-                "enabled": true,
-                "level": "warning"
-              },
-              "help": {
-                "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
-                "markdown": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>"
-              },
-              "properties": {
-                "precision": "very-high",
-                "tags": [
-                  "resources.rules.use-sys-exit"
-                ]
-              }
-            },
-            {
               "id": "4c93076f-7b99-3686-83d4-111202c6c77b",
               "name": "resources.rules.arbitrary-sleep",
               "shortDescription": {
@@ -1230,6 +1206,30 @@
                 "precision": "very-high",
                 "tags": [
                   "resources.rules.arbitrary-sleep"
+                ]
+              }
+            },
+            {
+              "id": "921fb1f1-48f4-3530-b64d-14d346995e8b",
+              "name": "resources.rules.use-sys-exit",
+              "shortDescription": {
+                "text": "Opengrep Finding: resources.rules.use-sys-exit"
+              },
+              "fullDescription": {
+                "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python"
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning"
+              },
+              "help": {
+                "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python\n💎 Enable cross-file analysis and Pro rules for free at sg.run/pro",
+                "markdown": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python\n\n#### 💎 Enable cross-file analysis and Pro rules for free at <a href='https://sg.run/pro'>sg.run/pro</a>"
+              },
+              "properties": {
+                "precision": "very-high",
+                "tags": [
+                  "resources.rules.use-sys-exit"
                 ]
               }
             },
@@ -1476,7 +1476,7 @@
               }
             },
             {
-              "id": "1025dc4a-83ea-3dab-95e4-a06a57074937",
+              "id": "ebe0c2af-9edb-3d21-9feb-1bc849dfc04a",
               "name": "resources.rules.dangerous-subprocess-use",
               "shortDescription": {
                 "text": "Opengrep Finding: resources.rules.dangerous-subprocess-use"
@@ -1500,7 +1500,7 @@
               }
             },
             {
-              "id": "ebe0c2af-9edb-3d21-9feb-1bc849dfc04a",
+              "id": "1025dc4a-83ea-3dab-95e4-a06a57074937",
               "name": "resources.rules.dangerous-subprocess-use",
               "shortDescription": {
                 "text": "Opengrep Finding: resources.rules.dangerous-subprocess-use"
@@ -1710,37 +1710,6 @@
           "properties": {}
         },
         {
-          "ruleId": "a4f5871c-8305-3f15-8017-2949421ce1de",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "If possible, it is better to rely on automatic pinning in PyTorch to avoid undefined behavior and for efficiency"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_infer_perf/general_perf/backends/SPU/base_compile.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 87,
-                  "startColumn": 34,
-                  "endLine": 87,
-                  "endColumn": 112,
-                  "snippet": {
-                    "text": "        self.config.dataloader = DataLoaderX(dataset, batch_size=self.batch_size, shuffle=False, num_workers=4)"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "5701402541680ce406797f8153bd9ceb8154e2eb3caea36d64ebda2f425fca0c84c4310787e4b373e2b62314e057b230cdc9aac4bc97a3705f6bbbf310f09a57_2"
-          },
-          "properties": {}
-        },
-        {
           "ruleId": "d82e8c21-714a-3f8c-bc6e-dc348bda05ae",
           "kind": "fail",
           "level": "warning",
@@ -1772,6 +1741,37 @@
           "properties": {}
         },
         {
+          "ruleId": "a4f5871c-8305-3f15-8017-2949421ce1de",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "If possible, it is better to rely on automatic pinning in PyTorch to avoid undefined behavior and for efficiency"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/backends/SPU/base_compile.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 87,
+                  "startColumn": 34,
+                  "endLine": 87,
+                  "endColumn": 112,
+                  "snippet": {
+                    "text": "        self.config.dataloader = DataLoaderX(dataset, batch_size=self.batch_size, shuffle=False, num_workers=4)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "5701402541680ce406797f8153bd9ceb8154e2eb3caea36d64ebda2f425fca0c84c4310787e4b373e2b62314e057b230cdc9aac4bc97a3705f6bbbf310f09a57_2"
+          },
+          "properties": {}
+        },
+        {
           "ruleId": "3e45856d-2c35-3d1b-bb82-2038f71a4bd5",
           "kind": "fail",
           "level": "warning",
@@ -1799,37 +1799,6 @@
           ],
           "fingerprints": {
             "matchBasedId/v1": "5701402541680ce406797f8153bd9ceb8154e2eb3caea36d64ebda2f425fca0c84c4310787e4b373e2b62314e057b230cdc9aac4bc97a3705f6bbbf310f09a57_1"
-          },
-          "properties": {}
-        },
-        {
-          "ruleId": "6b5a4e0d-a391-37d9-9d3b-e1acdccf0643",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "If possible, it is better to rely on automatic pinning in PyTorch to avoid undefined behavior and for efficiency"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_infer_perf/general_perf/backends/SPU/base_compile.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 130,
-                  "startColumn": 34,
-                  "endLine": 130,
-                  "endColumn": 112,
-                  "snippet": {
-                    "text": "        self.config.dataloader = DataLoaderX(dataset, batch_size=self.batch_size, shuffle=False, num_workers=4)"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "5701402541680ce406797f8153bd9ceb8154e2eb3caea36d64ebda2f425fca0c84c4310787e4b373e2b62314e057b230cdc9aac4bc97a3705f6bbbf310f09a57_4"
           },
           "properties": {}
         },
@@ -1896,6 +1865,37 @@
           "properties": {}
         },
         {
+          "ruleId": "6b5a4e0d-a391-37d9-9d3b-e1acdccf0643",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "If possible, it is better to rely on automatic pinning in PyTorch to avoid undefined behavior and for efficiency"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/backends/SPU/base_compile.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 130,
+                  "startColumn": 34,
+                  "endLine": 130,
+                  "endColumn": 112,
+                  "snippet": {
+                    "text": "        self.config.dataloader = DataLoaderX(dataset, batch_size=self.batch_size, shuffle=False, num_workers=4)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "5701402541680ce406797f8153bd9ceb8154e2eb3caea36d64ebda2f425fca0c84c4310787e4b373e2b62314e057b230cdc9aac4bc97a3705f6bbbf310f09a57_4"
+          },
+          "properties": {}
+        },
+        {
           "ruleId": "9272bbbd-593f-357b-b1d0-b2e40e8d7e6a",
           "kind": "fail",
           "level": "warning",
@@ -1923,37 +1923,6 @@
           ],
           "fingerprints": {
             "matchBasedId/v1": "63a80e87ec5c3c9d1e396aa8f6542f048389770d5676af43703cd01e33f737ae68a74b8e8250e9de853588a87b8fb4691adf15056b1b473eae2afd68418479a6_0"
-          },
-          "properties": {}
-        },
-        {
-          "ruleId": "bf787164-24b1-36f1-a386-30a1e6b9c081",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Untrusted user input in `importlib.import_module()` function allows an attacker to load arbitrary code. Avoid dynamic values in `importlib.import_module()` or use a whitelist to prevent running untrusted code."
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_infer_perf/general_perf/core/configs/backend_store.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 56,
-                  "startColumn": 23,
-                  "endLine": 59,
-                  "endColumn": 69,
-                  "snippet": {
-                    "text": "    runtime_backend = importlib.import_module('general_perf.backends.' +\n                                              hardware_type +\n                                              \".runtime_backend_\" +\n                                              hardware_type.lower())"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "662d5d96b731c681afb4647ad4812623bd437a36c1ce040ba5da653d2fec179e97a5f4eeb91a9fe2f06cd5fde1d5e9f59f73c84bd309e7b8498ed089fe273828_0"
           },
           "properties": {}
         },
@@ -1989,7 +1958,7 @@
           "properties": {}
         },
         {
-          "ruleId": "6f849429-43d4-3954-970b-01a3d7f63d15",
+          "ruleId": "bf787164-24b1-36f1-a386-30a1e6b9c081",
           "kind": "fail",
           "level": "warning",
           "message": {
@@ -1999,23 +1968,23 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "byte_infer_perf/general_perf/core/perf_engine.py",
+                  "uri": "byte_infer_perf/general_perf/core/configs/backend_store.py",
                   "uriBaseId": "%SRCROOT%"
                 },
                 "region": {
-                  "startLine": 275,
-                  "startColumn": 27,
-                  "endLine": 277,
-                  "endColumn": 68,
+                  "startLine": 56,
+                  "startColumn": 23,
+                  "endLine": 59,
+                  "endColumn": 69,
                   "snippet": {
-                    "text": "        AccuracyChecker = importlib.import_module('general_perf.datasets.' +\n                                                  dataset_name +\n                                                  \".test_accuracy\")"
+                    "text": "    runtime_backend = importlib.import_module('general_perf.backends.' +\n                                              hardware_type +\n                                              \".runtime_backend_\" +\n                                              hardware_type.lower())"
                   }
                 }
               }
             }
           ],
           "fingerprints": {
-            "matchBasedId/v1": "3c53accfd3a258add1dfe5dcb5da09470bf92b2a94c19e6077936d9fa228d685f93b934590a56d5573ec59b0295aaf2054f477ede288dc4ccf7792d63e062e91_0"
+            "matchBasedId/v1": "662d5d96b731c681afb4647ad4812623bd437a36c1ce040ba5da653d2fec179e97a5f4eeb91a9fe2f06cd5fde1d5e9f59f73c84bd309e7b8498ed089fe273828_0"
           },
           "properties": {}
         },
@@ -2051,11 +2020,11 @@
           "properties": {}
         },
         {
-          "ruleId": "83223cee-358b-3ff8-be4e-d72ccba9c551",
+          "ruleId": "6f849429-43d4-3954-970b-01a3d7f63d15",
           "kind": "fail",
           "level": "warning",
           "message": {
-            "text": "Detected subprocess function 'call' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n"
+            "text": "Untrusted user input in `importlib.import_module()` function allows an attacker to load arbitrary code. Avoid dynamic values in `importlib.import_module()` or use a whitelist to prevent running untrusted code."
           },
           "locations": [
             {
@@ -2065,50 +2034,19 @@
                   "uriBaseId": "%SRCROOT%"
                 },
                 "region": {
-                  "startLine": 377,
-                  "startColumn": 17,
-                  "endLine": 379,
-                  "endColumn": 19,
+                  "startLine": 275,
+                  "startColumn": 27,
+                  "endLine": 277,
+                  "endColumn": 68,
                   "snippet": {
-                    "text": "                subprocess.call([\n                    python_path, '-m', 'pip', 'install', '--upgrade', 'pip', '--quiet'\n                ])"
+                    "text": "        AccuracyChecker = importlib.import_module('general_perf.datasets.' +\n                                                  dataset_name +\n                                                  \".test_accuracy\")"
                   }
                 }
               }
             }
           ],
           "fingerprints": {
-            "matchBasedId/v1": "e8d18fce72dfa87e57dde070030af6ba49a49e047ba2e98e77592af8ef6f631022adaafa2025e88a20604bca7f18dc4fefdffbc4d16ca52553041b2a6d0c06c9_0"
-          },
-          "properties": {}
-        },
-        {
-          "ruleId": "92eb1d76-358d-3ccc-a35e-1d0e9342a766",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Detected subprocess function 'call' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_infer_perf/general_perf/core/perf_engine.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 380,
-                  "startColumn": 17,
-                  "endLine": 383,
-                  "endColumn": 19,
-                  "snippet": {
-                    "text": "                subprocess.call([\n                    python_path, '-m', 'pip', 'install', '-r', 'general_perf/backends/' +\n                    hardware_type + '/requirements.txt', '-q'\n                ])"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "e8d18fce72dfa87e57dde070030af6ba49a49e047ba2e98e77592af8ef6f631022adaafa2025e88a20604bca7f18dc4fefdffbc4d16ca52553041b2a6d0c06c9_1"
+            "matchBasedId/v1": "3c53accfd3a258add1dfe5dcb5da09470bf92b2a94c19e6077936d9fa228d685f93b934590a56d5573ec59b0295aaf2054f477ede288dc4ccf7792d63e062e91_0"
           },
           "properties": {}
         },
@@ -2175,38 +2113,7 @@
           "properties": {}
         },
         {
-          "ruleId": "6ef3a639-ea49-3908-b19e-a261dba179c5",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the program, this may be a code injection vulnerability. Ensure evaluated content is not definable by external sources."
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_infer_perf/general_perf/core/perf_engine.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 385,
-                  "startColumn": 17,
-                  "endLine": 385,
-                  "endColumn": 78,
-                  "snippet": {
-                    "text": "                exec(open(activate_file).read(), {'__file__': activate_file})"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "fd9ebea917e90a8b09ed52889887990c2a73c9ab806788488aec147a71207c3d5effcfda1b44e4146470e57e8874043238188fbd60b7ee0e936fd13fed4afa4b_1"
-          },
-          "properties": {}
-        },
-        {
-          "ruleId": "3015b883-3782-389d-873c-8e1f0c4ea60d",
+          "ruleId": "83223cee-358b-3ff8-be4e-d72ccba9c551",
           "kind": "fail",
           "level": "warning",
           "message": {
@@ -2220,9 +2127,9 @@
                   "uriBaseId": "%SRCROOT%"
                 },
                 "region": {
-                  "startLine": 390,
+                  "startLine": 377,
                   "startColumn": 17,
-                  "endLine": 392,
+                  "endLine": 379,
                   "endColumn": 19,
                   "snippet": {
                     "text": "                subprocess.call([\n                    python_path, '-m', 'pip', 'install', '--upgrade', 'pip', '--quiet'\n                ])"
@@ -2232,12 +2139,12 @@
             }
           ],
           "fingerprints": {
-            "matchBasedId/v1": "e8d18fce72dfa87e57dde070030af6ba49a49e047ba2e98e77592af8ef6f631022adaafa2025e88a20604bca7f18dc4fefdffbc4d16ca52553041b2a6d0c06c9_2"
+            "matchBasedId/v1": "e8d18fce72dfa87e57dde070030af6ba49a49e047ba2e98e77592af8ef6f631022adaafa2025e88a20604bca7f18dc4fefdffbc4d16ca52553041b2a6d0c06c9_0"
           },
           "properties": {}
         },
         {
-          "ruleId": "9177bc35-ce2a-3d54-ab48-22d1bb0c8d4e",
+          "ruleId": "92eb1d76-358d-3ccc-a35e-1d0e9342a766",
           "kind": "fail",
           "level": "warning",
           "message": {
@@ -2251,9 +2158,9 @@
                   "uriBaseId": "%SRCROOT%"
                 },
                 "region": {
-                  "startLine": 393,
+                  "startLine": 380,
                   "startColumn": 17,
-                  "endLine": 396,
+                  "endLine": 383,
                   "endColumn": 19,
                   "snippet": {
                     "text": "                subprocess.call([\n                    python_path, '-m', 'pip', 'install', '-r', 'general_perf/backends/' +\n                    hardware_type + '/requirements.txt', '-q'\n                ])"
@@ -2263,7 +2170,7 @@
             }
           ],
           "fingerprints": {
-            "matchBasedId/v1": "e8d18fce72dfa87e57dde070030af6ba49a49e047ba2e98e77592af8ef6f631022adaafa2025e88a20604bca7f18dc4fefdffbc4d16ca52553041b2a6d0c06c9_3"
+            "matchBasedId/v1": "e8d18fce72dfa87e57dde070030af6ba49a49e047ba2e98e77592af8ef6f631022adaafa2025e88a20604bca7f18dc4fefdffbc4d16ca52553041b2a6d0c06c9_1"
           },
           "properties": {}
         },
@@ -2299,6 +2206,99 @@
           "properties": {}
         },
         {
+          "ruleId": "9177bc35-ce2a-3d54-ab48-22d1bb0c8d4e",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Detected subprocess function 'call' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/core/perf_engine.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 393,
+                  "startColumn": 17,
+                  "endLine": 396,
+                  "endColumn": 19,
+                  "snippet": {
+                    "text": "                subprocess.call([\n                    python_path, '-m', 'pip', 'install', '-r', 'general_perf/backends/' +\n                    hardware_type + '/requirements.txt', '-q'\n                ])"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "e8d18fce72dfa87e57dde070030af6ba49a49e047ba2e98e77592af8ef6f631022adaafa2025e88a20604bca7f18dc4fefdffbc4d16ca52553041b2a6d0c06c9_3"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "3015b883-3782-389d-873c-8e1f0c4ea60d",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Detected subprocess function 'call' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/core/perf_engine.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 390,
+                  "startColumn": 17,
+                  "endLine": 392,
+                  "endColumn": 19,
+                  "snippet": {
+                    "text": "                subprocess.call([\n                    python_path, '-m', 'pip', 'install', '--upgrade', 'pip', '--quiet'\n                ])"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "e8d18fce72dfa87e57dde070030af6ba49a49e047ba2e98e77592af8ef6f631022adaafa2025e88a20604bca7f18dc4fefdffbc4d16ca52553041b2a6d0c06c9_2"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "6ef3a639-ea49-3908-b19e-a261dba179c5",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the program, this may be a code injection vulnerability. Ensure evaluated content is not definable by external sources."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/core/perf_engine.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 385,
+                  "startColumn": 17,
+                  "endLine": 385,
+                  "endColumn": 78,
+                  "snippet": {
+                    "text": "                exec(open(activate_file).read(), {'__file__': activate_file})"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "fd9ebea917e90a8b09ed52889887990c2a73c9ab806788488aec147a71207c3d5effcfda1b44e4146470e57e8874043238188fbd60b7ee0e936fd13fed4afa4b_1"
+          },
+          "properties": {}
+        },
+        {
           "ruleId": "ceb3a37a-80f7-36b7-b501-16473297d9f0",
           "kind": "fail",
           "level": "warning",
@@ -2326,37 +2326,6 @@
           ],
           "fingerprints": {
             "matchBasedId/v1": "293aa95e04fff9ab17c18db895c4586ccd9a5c1d7c5058dba521c585dc0305e94122582e34718838ffed70aeed2de634a03c147602025a85fd0aa389d460088e_2"
-          },
-          "properties": {}
-        },
-        {
-          "ruleId": "d48913e9-b035-3171-b812-2334033515aa",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Functions reliant on pickle can result in arbitrary code execution.  Consider using fickling or switching to a safer serialization method"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_infer_perf/general_perf/datasets/open_cail2019/data_loader.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 39,
-                  "startColumn": 29,
-                  "endLine": 42,
-                  "endColumn": 31,
-                  "snippet": {
-                    "text": "        batch_segment_ids = np.load(\n            \"general_perf/datasets/{}/batch_segment_ids.npy\".format(\n                self.config['dataset_name']),\n            allow_pickle=True)"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "293aa95e04fff9ab17c18db895c4586ccd9a5c1d7c5058dba521c585dc0305e94122582e34718838ffed70aeed2de634a03c147602025a85fd0aa389d460088e_1"
           },
           "properties": {}
         },
@@ -2392,6 +2361,37 @@
           "properties": {}
         },
         {
+          "ruleId": "d48913e9-b035-3171-b812-2334033515aa",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Functions reliant on pickle can result in arbitrary code execution.  Consider using fickling or switching to a safer serialization method"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/datasets/open_cail2019/data_loader.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 39,
+                  "startColumn": 29,
+                  "endLine": 42,
+                  "endColumn": 31,
+                  "snippet": {
+                    "text": "        batch_segment_ids = np.load(\n            \"general_perf/datasets/{}/batch_segment_ids.npy\".format(\n                self.config['dataset_name']),\n            allow_pickle=True)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "293aa95e04fff9ab17c18db895c4586ccd9a5c1d7c5058dba521c585dc0305e94122582e34718838ffed70aeed2de634a03c147602025a85fd0aa389d460088e_1"
+          },
+          "properties": {}
+        },
+        {
           "ruleId": "39168c04-caf9-31f1-895e-2347af1e44c1",
           "kind": "fail",
           "level": "warning",
@@ -2419,37 +2419,6 @@
           ],
           "fingerprints": {
             "matchBasedId/v1": "5103a339d03c42adaa057d4f103e7283879deae3f6c1c66ab0201b6b485081b6fa71153b116f79033af083e836435165664b9ee85f5022fc6f5e1af015ddbbf9_0"
-          },
-          "properties": {}
-        },
-        {
-          "ruleId": "b097e27c-1482-3f1a-aedf-66fb82f80026",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Regex `r\"\\s+\"` may be vulnerable to catastrophic backtracking, which may lead to denial of service attacks. (This rule only matches regex usage, not actual REDoS patterns. For full detection, use Semgrep Pro Engine.)"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_infer_perf/general_perf/datasets/open_imagenet/data_loader.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 79,
-                  "startColumn": 37,
-                  "endLine": 79,
-                  "endColumn": 64,
-                  "snippet": {
-                    "text": "                image_name, label = re.split(r\"\\s+\", s.strip())"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "e19363263e0ae9affaf6961b8989b3be2dbe7a63df65551a091b5b085f17c709babf6cd9acc7abba67a8933259e4532fd885b1ff10e27b447af98667e34270ba_0"
           },
           "properties": {}
         },
@@ -2485,33 +2454,33 @@
           "properties": {}
         },
         {
-          "ruleId": "4e696d18-b633-388e-ba06-89383c5a8f26",
+          "ruleId": "b097e27c-1482-3f1a-aedf-66fb82f80026",
           "kind": "fail",
           "level": "warning",
           "message": {
-            "text": "Avoid using `pickle`, which is known to lead to code execution vulnerabilities. When unpickling, the serialized data could be manipulated to run arbitrary code. Instead, consider serializing the relevant data as JSON or a similar text-based serialization format."
+            "text": "Regex `r\"\\s+\"` may be vulnerable to catastrophic backtracking, which may lead to denial of service attacks. (This rule only matches regex usage, not actual REDoS patterns. For full detection, use Semgrep Pro Engine.)"
           },
           "locations": [
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "byte_infer_perf/general_perf/datasets/open_squad/data_loader.py",
+                  "uri": "byte_infer_perf/general_perf/datasets/open_imagenet/data_loader.py",
                   "uriBaseId": "%SRCROOT%"
                 },
                 "region": {
-                  "startLine": 57,
-                  "startColumn": 33,
-                  "endLine": 57,
-                  "endColumn": 56,
+                  "startLine": 79,
+                  "startColumn": 37,
+                  "endLine": 79,
+                  "endColumn": 64,
                   "snippet": {
-                    "text": "                eval_features = pickle.load(cache_file)"
+                    "text": "                image_name, label = re.split(r\"\\s+\", s.strip())"
                   }
                 }
               }
             }
           ],
           "fingerprints": {
-            "matchBasedId/v1": "2c5273c29e6aa39a80299dbea5718a88df2edd84286ebff713ae767e6b44a07fb2b076baf8ded6b16b70f022814c0c639707e221590ea10f2f82aa6998d0a17b_0"
+            "matchBasedId/v1": "e19363263e0ae9affaf6961b8989b3be2dbe7a63df65551a091b5b085f17c709babf6cd9acc7abba67a8933259e4532fd885b1ff10e27b447af98667e34270ba_0"
           },
           "properties": {}
         },
@@ -2547,33 +2516,33 @@
           "properties": {}
         },
         {
-          "ruleId": "5a337fe1-a64b-34cc-96fc-28ecebcac551",
+          "ruleId": "4e696d18-b633-388e-ba06-89383c5a8f26",
           "kind": "fail",
           "level": "warning",
           "message": {
-            "text": "This is not checking the return value of this subprocess call; if it fails no exception will be raised. Consider subprocess.check_call() instead"
+            "text": "Avoid using `pickle`, which is known to lead to code execution vulnerabilities. When unpickling, the serialized data could be manipulated to run arbitrary code. Instead, consider serializing the relevant data as JSON or a similar text-based serialization format."
           },
           "locations": [
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "byte_infer_perf/general_perf/launch.py",
+                  "uri": "byte_infer_perf/general_perf/datasets/open_squad/data_loader.py",
                   "uriBaseId": "%SRCROOT%"
                 },
                 "region": {
-                  "startLine": 58,
-                  "startColumn": 9,
-                  "endLine": 59,
-                  "endColumn": 79,
+                  "startLine": 57,
+                  "startColumn": 33,
+                  "endLine": 57,
+                  "endColumn": 56,
                   "snippet": {
-                    "text": "        subprocess.call([\n            'python3', '-m', 'pip', 'install', 'pip', '--upgrade', '--quiet'])"
+                    "text": "                eval_features = pickle.load(cache_file)"
                   }
                 }
               }
             }
           ],
           "fingerprints": {
-            "matchBasedId/v1": "0f9614c01bbdfb80264f28f63f5b90d296033b2716fd284c63d8231a77e8b00991bb706080cab4f02cd98e3e9a6d7899d4597dbc9e66910c656e0839640f4bcb_0"
+            "matchBasedId/v1": "2c5273c29e6aa39a80299dbea5718a88df2edd84286ebff713ae767e6b44a07fb2b076baf8ded6b16b70f022814c0c639707e221590ea10f2f82aa6998d0a17b_0"
           },
           "properties": {}
         },
@@ -2609,7 +2578,7 @@
           "properties": {}
         },
         {
-          "ruleId": "16510536-2c6b-33bf-aba7-3349be86612b",
+          "ruleId": "5a337fe1-a64b-34cc-96fc-28ecebcac551",
           "kind": "fail",
           "level": "warning",
           "message": {
@@ -2623,19 +2592,19 @@
                   "uriBaseId": "%SRCROOT%"
                 },
                 "region": {
-                  "startLine": 60,
+                  "startLine": 58,
                   "startColumn": 9,
-                  "endLine": 61,
-                  "endColumn": 98,
+                  "endLine": 59,
+                  "endColumn": 79,
                   "snippet": {
-                    "text": "        subprocess.call([\n            'python3', '-m', 'pip', 'install', '-r', 'general_perf/requirements.txt', '--quiet'])"
+                    "text": "        subprocess.call([\n            'python3', '-m', 'pip', 'install', 'pip', '--upgrade', '--quiet'])"
                   }
                 }
               }
             }
           ],
           "fingerprints": {
-            "matchBasedId/v1": "0f9614c01bbdfb80264f28f63f5b90d296033b2716fd284c63d8231a77e8b00991bb706080cab4f02cd98e3e9a6d7899d4597dbc9e66910c656e0839640f4bcb_1"
+            "matchBasedId/v1": "0f9614c01bbdfb80264f28f63f5b90d296033b2716fd284c63d8231a77e8b00991bb706080cab4f02cd98e3e9a6d7899d4597dbc9e66910c656e0839640f4bcb_0"
           },
           "properties": {}
         },
@@ -2671,7 +2640,7 @@
           "properties": {}
         },
         {
-          "ruleId": "05b18b8f-659e-3267-9830-f78356a2d177",
+          "ruleId": "16510536-2c6b-33bf-aba7-3349be86612b",
           "kind": "fail",
           "level": "warning",
           "message": {
@@ -2685,19 +2654,19 @@
                   "uriBaseId": "%SRCROOT%"
                 },
                 "region": {
-                  "startLine": 75,
-                  "startColumn": 13,
-                  "endLine": 79,
-                  "endColumn": 15,
+                  "startLine": 60,
+                  "startColumn": 9,
+                  "endLine": 61,
+                  "endColumn": 98,
                   "snippet": {
-                    "text": "            subprocess.call([\n                'bash', 'general_perf/backends/CPU/calculate_cpu_diff.sh',\n                workload['model'],\n                str(workload['batch_sizes'][0])\n            ])"
+                    "text": "        subprocess.call([\n            'python3', '-m', 'pip', 'install', '-r', 'general_perf/requirements.txt', '--quiet'])"
                   }
                 }
               }
             }
           ],
           "fingerprints": {
-            "matchBasedId/v1": "0f9614c01bbdfb80264f28f63f5b90d296033b2716fd284c63d8231a77e8b00991bb706080cab4f02cd98e3e9a6d7899d4597dbc9e66910c656e0839640f4bcb_3"
+            "matchBasedId/v1": "0f9614c01bbdfb80264f28f63f5b90d296033b2716fd284c63d8231a77e8b00991bb706080cab4f02cd98e3e9a6d7899d4597dbc9e66910c656e0839640f4bcb_1"
           },
           "properties": {}
         },
@@ -2729,6 +2698,37 @@
           ],
           "fingerprints": {
             "matchBasedId/v1": "2810f22b8ff75e1ed61ef1d774ad74aeb5103bb73522a70377b07708f1b85fdc9e9b64cfdef7f7b0d1d6efd4d7cd78be1a77537e89fabd4b9a6dda0dec2d9a33_0"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "05b18b8f-659e-3267-9830-f78356a2d177",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "This is not checking the return value of this subprocess call; if it fails no exception will be raised. Consider subprocess.check_call() instead"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/general_perf/launch.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 75,
+                  "startColumn": 13,
+                  "endLine": 79,
+                  "endColumn": 15,
+                  "snippet": {
+                    "text": "            subprocess.call([\n                'bash', 'general_perf/backends/CPU/calculate_cpu_diff.sh',\n                workload['model'],\n                str(workload['batch_sizes'][0])\n            ])"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "0f9614c01bbdfb80264f28f63f5b90d296033b2716fd284c63d8231a77e8b00991bb706080cab4f02cd98e3e9a6d7899d4597dbc9e66910c656e0839640f4bcb_3"
           },
           "properties": {}
         },
@@ -2795,37 +2795,6 @@
           "properties": {}
         },
         {
-          "ruleId": "07377f65-ff95-3150-a805-45d8bc3b0fbc",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Function '__init__' is missing a rate-limiting decorator.\nHigh volume traffic to this function could starve application\nresources. Consider adding rate limiting from a library such\nas 'django-ratelimit'.\n"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_infer_perf/llm_perf/core/inferencer.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 30,
-                  "startColumn": 9,
-                  "endLine": 44,
-                  "endColumn": 40,
-                  "snippet": {
-                    "text": "        def __init__(self, request: GenerateRequest):\n            self.request = request\n            self.result_queue = ResultQueue()\n            self.state = PacketStatus.PENDING\n            self.generate_ids = []\n            self.exception = None\n\n            self.create_st = time.perf_counter_ns()\n            self.last_model_start_st = time.perf_counter_ns()\n            self.last_model_end_st = time.perf_counter_ns()\n            self.last_process_st = time.perf_counter_ns()\n\n            self.wait_time = []\n            self.model_time = []\n            self.post_process_time = []"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "99256d9cffe29c9111c204e5292fe09fcead577d4728dffe63196b083e070cd5d796e8f87a7e45d9a6e382b7d773ad99500559fcd1e42814e8a46602d3f01cf9_0"
-          },
-          "properties": {}
-        },
-        {
           "ruleId": "9ed2a77a-a30c-3923-bf8f-0a68c4c3cd3e",
           "kind": "fail",
           "level": "warning",
@@ -2857,33 +2826,33 @@
           "properties": {}
         },
         {
-          "ruleId": "31283317-16fc-3c5a-887a-98e8ea17f249",
+          "ruleId": "07377f65-ff95-3150-a805-45d8bc3b0fbc",
           "kind": "fail",
           "level": "warning",
           "message": {
-            "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python"
+            "text": "Function '__init__' is missing a rate-limiting decorator.\nHigh volume traffic to this function could starve application\nresources. Consider adding rate limiting from a library such\nas 'django-ratelimit'.\n"
           },
           "locations": [
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "byte_infer_perf/llm_perf/launch.py",
+                  "uri": "byte_infer_perf/llm_perf/core/inferencer.py",
                   "uriBaseId": "%SRCROOT%"
                 },
                 "region": {
-                  "startLine": 317,
+                  "startLine": 30,
                   "startColumn": 9,
-                  "endLine": 317,
-                  "endColumn": 17,
+                  "endLine": 44,
+                  "endColumn": 40,
                   "snippet": {
-                    "text": "        exit(-1)"
+                    "text": "        def __init__(self, request: GenerateRequest):\n            self.request = request\n            self.result_queue = ResultQueue()\n            self.state = PacketStatus.PENDING\n            self.generate_ids = []\n            self.exception = None\n\n            self.create_st = time.perf_counter_ns()\n            self.last_model_start_st = time.perf_counter_ns()\n            self.last_model_end_st = time.perf_counter_ns()\n            self.last_process_st = time.perf_counter_ns()\n\n            self.wait_time = []\n            self.model_time = []\n            self.post_process_time = []"
                   }
                 }
               }
             }
           ],
           "fingerprints": {
-            "matchBasedId/v1": "a5169e66fca1bf3a000f2d21a732e55672df1c9e40fe3b4c7332da9e60e470415cfcb15e2ced8d7c0751a42d1f7019108d291279cde514060b210b16699d9748_0"
+            "matchBasedId/v1": "99256d9cffe29c9111c204e5292fe09fcead577d4728dffe63196b083e070cd5d796e8f87a7e45d9a6e382b7d773ad99500559fcd1e42814e8a46602d3f01cf9_0"
           },
           "properties": {}
         },
@@ -2919,33 +2888,33 @@
           "properties": {}
         },
         {
-          "ruleId": "65b04bdc-b170-3cfd-9be1-add3b25d530d",
+          "ruleId": "31283317-16fc-3c5a-887a-98e8ea17f249",
           "kind": "fail",
           "level": "warning",
           "message": {
-            "text": "Function 'CompleteInference' is missing a rate-limiting decorator.\nHigh volume traffic to this function could starve application\nresources. Consider adding rate limiting from a library such\nas 'django-ratelimit'.\n"
+            "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python"
           },
           "locations": [
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "byte_infer_perf/llm_perf/server/server_pb2_grpc.py",
+                  "uri": "byte_infer_perf/llm_perf/launch.py",
                   "uriBaseId": "%SRCROOT%"
                 },
                 "region": {
-                  "startLine": 32,
-                  "startColumn": 5,
-                  "endLine": 36,
-                  "endColumn": 61,
+                  "startLine": 317,
+                  "startColumn": 9,
+                  "endLine": 317,
+                  "endColumn": 17,
                   "snippet": {
-                    "text": "    def CompleteInference(self, request, context):\n        \"\"\"1 request -> 1 response\"\"\"\n        context.set_code(grpc.StatusCode.UNIMPLEMENTED)\n        context.set_details(\"Method not implemented!\")\n        raise NotImplementedError(\"Method not implemented!\")"
+                    "text": "        exit(-1)"
                   }
                 }
               }
             }
           ],
           "fingerprints": {
-            "matchBasedId/v1": "10bdabf92f6b303d17dbc0b3d9b45199b9a7a6776e1231fedc051213f16e52b61fb930ec3a716d3e909afb2966efe4fc4bf37261911876dc1ecfef1b1d84fc5c_0"
+            "matchBasedId/v1": "a5169e66fca1bf3a000f2d21a732e55672df1c9e40fe3b4c7332da9e60e470415cfcb15e2ced8d7c0751a42d1f7019108d291279cde514060b210b16699d9748_0"
           },
           "properties": {}
         },
@@ -2977,6 +2946,37 @@
           ],
           "fingerprints": {
             "matchBasedId/v1": "c82f9ba5bb7fe84acd8eb3074c92e3c9a7d09016a3018c82881d9ea0918edc85461843674021e57acbeb4e65487915c81224e308f83552d7ffcad8a972857787_0"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "65b04bdc-b170-3cfd-9be1-add3b25d530d",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Function 'CompleteInference' is missing a rate-limiting decorator.\nHigh volume traffic to this function could starve application\nresources. Consider adding rate limiting from a library such\nas 'django-ratelimit'.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/llm_perf/server/server_pb2_grpc.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 32,
+                  "startColumn": 5,
+                  "endLine": 36,
+                  "endColumn": 61,
+                  "snippet": {
+                    "text": "    def CompleteInference(self, request, context):\n        \"\"\"1 request -> 1 response\"\"\"\n        context.set_code(grpc.StatusCode.UNIMPLEMENTED)\n        context.set_details(\"Method not implemented!\")\n        raise NotImplementedError(\"Method not implemented!\")"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "10bdabf92f6b303d17dbc0b3d9b45199b9a7a6776e1231fedc051213f16e52b61fb930ec3a716d3e909afb2966efe4fc4bf37261911876dc1ecfef1b1d84fc5c_0"
           },
           "properties": {}
         },
@@ -3043,37 +3043,6 @@
           "properties": {}
         },
         {
-          "ruleId": "9a15efc0-11ea-329b-b6cd-aca39d49768b",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "The Python 'subprocess' module called with 'shell=True' may allow for shell injection"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_infer_perf/llm_perf/utils/reporter.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 42,
-                  "startColumn": 16,
-                  "endLine": 42,
-                  "endColumn": 60,
-                  "snippet": {
-                    "text": "    cpu_name = subprocess.check_output(command, shell=True)"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "8475c0add05218304787b2d74cdbbf2be9f5dc8ae04a565fbbd1d0375857e0ea27ed55866a74388887455e52e60bcf40e37fee5567e4a7d53fcf95fa2ed94eb6_0"
-          },
-          "properties": {}
-        },
-        {
           "ruleId": "842f1aff-d8fe-3938-b069-0204600d9a60",
           "kind": "fail",
           "level": "warning",
@@ -3101,6 +3070,37 @@
           ],
           "fingerprints": {
             "matchBasedId/v1": "76c857a06c693fbc3cea5c98b9737b8bdb82eb2e37700f6500b6656d7a50dfca7609d2848a04dabda851617ad74021eb9c51485692400aa4091b7c076c7063a9_0"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "9a15efc0-11ea-329b-b6cd-aca39d49768b",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "The Python 'subprocess' module called with 'shell=True' may allow for shell injection"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_infer_perf/llm_perf/utils/reporter.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 42,
+                  "startColumn": 16,
+                  "endLine": 42,
+                  "endColumn": 60,
+                  "snippet": {
+                    "text": "    cpu_name = subprocess.check_output(command, shell=True)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "8475c0add05218304787b2d74cdbbf2be9f5dc8ae04a565fbbd1d0375857e0ea27ed55866a74388887455e52e60bcf40e37fee5567e4a7d53fcf95fa2ed94eb6_0"
           },
           "properties": {}
         },
@@ -3167,37 +3167,6 @@
           "properties": {}
         },
         {
-          "ruleId": "921fb1f1-48f4-3530-b64d-14d346995e8b",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_micro_perf/core/perf_engine.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 276,
-                  "startColumn": 13,
-                  "endLine": 276,
-                  "endColumn": 20,
-                  "snippet": {
-                    "text": "            exit(1)"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "76c857a06c693fbc3cea5c98b9737b8bdb82eb2e37700f6500b6656d7a50dfca7609d2848a04dabda851617ad74021eb9c51485692400aa4091b7c076c7063a9_1"
-          },
-          "properties": {}
-        },
-        {
           "ruleId": "4c93076f-7b99-3686-83d4-111202c6c77b",
           "kind": "fail",
           "level": "warning",
@@ -3225,6 +3194,37 @@
           ],
           "fingerprints": {
             "matchBasedId/v1": "c0feebd796b9c56fe87a5fbe1d383bd33ad1d077e125ddada3d15b3b335232e1bfcfa99f2d6570a32bc2902e4eda5892a461393879065530994eb539c77d08c6_0"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "921fb1f1-48f4-3530-b64d-14d346995e8b",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations. https://stackoverflow.com/questions/6501121/difference-between-exit-and-sys-exit-in-python"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_micro_perf/core/perf_engine.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 276,
+                  "startColumn": 13,
+                  "endLine": 276,
+                  "endColumn": 20,
+                  "snippet": {
+                    "text": "            exit(1)"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "76c857a06c693fbc3cea5c98b9737b8bdb82eb2e37700f6500b6656d7a50dfca7609d2848a04dabda851617ad74021eb9c51485692400aa4091b7c076c7063a9_1"
           },
           "properties": {}
         },
@@ -3539,37 +3539,6 @@
           "properties": {}
         },
         {
-          "ruleId": "1025dc4a-83ea-3dab-95e4-a06a57074937",
-          "kind": "fail",
-          "level": "warning",
-          "message": {
-            "text": "Detected subprocess function 'run' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "byte_micro_perf/launch.py",
-                  "uriBaseId": "%SRCROOT%"
-                },
-                "region": {
-                  "startLine": 178,
-                  "startColumn": 9,
-                  "endLine": 181,
-                  "endColumn": 10,
-                  "snippet": {
-                    "text": "        subprocess.run(\n            \"python3 -m pip install -r requirements.txt --quiet\", \n            shell=True\n        )"
-                  }
-                }
-              }
-            }
-          ],
-          "fingerprints": {
-            "matchBasedId/v1": "5e6d8092d33cbc69ab6b568dc903d00d89ad5aca715fc24ef481ef4d9823538d98b471b715a72f36fc3956908277641d8546c7cd284a0ac23850faeba13099f7_1"
-          },
-          "properties": {}
-        },
-        {
           "ruleId": "ebe0c2af-9edb-3d21-9feb-1bc849dfc04a",
           "kind": "fail",
           "level": "warning",
@@ -3597,6 +3566,37 @@
           ],
           "fingerprints": {
             "matchBasedId/v1": "5e6d8092d33cbc69ab6b568dc903d00d89ad5aca715fc24ef481ef4d9823538d98b471b715a72f36fc3956908277641d8546c7cd284a0ac23850faeba13099f7_0"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "1025dc4a-83ea-3dab-95e4-a06a57074937",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Detected subprocess function 'run' without a static string. If this data can be\ncontrolled by a malicious actor, it may be an instance of command injection.\nAudit the use of this call to ensure it is not controllable by an external resource.\nYou may consider using 'shlex.escape()'.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "byte_micro_perf/launch.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 178,
+                  "startColumn": 9,
+                  "endLine": 181,
+                  "endColumn": 10,
+                  "snippet": {
+                    "text": "        subprocess.run(\n            \"python3 -m pip install -r requirements.txt --quiet\", \n            shell=True\n        )"
+                  }
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "matchBasedId/v1": "5e6d8092d33cbc69ab6b568dc903d00d89ad5aca715fc24ef481ef4d9823538d98b471b715a72f36fc3956908277641d8546c7cd284a0ac23850faeba13099f7_1"
           },
           "properties": {}
         },
